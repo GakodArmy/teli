@@ -194,11 +194,11 @@ cat /etc/openvpn/ca.crt >> /etc/openvpn/client.ovpn
 echo '</ca>' >> /etc/openvpn/client.ovpn
 sed -i $MYIP2 /etc/openvpn/client.ovpn;
 echo '<cert>' >> /etc/openvpn/client.ovpn
-cat /etc/openvpn/client.crt >> /etc/openvpn/client.ovpn
+cat /etc/openvpn/server.crt >> /etc/openvpn/client.ovpn
 echo '</cert>' >> /etc/openvpn/client.ovpn
 sed -i $MYIP2 /etc/openvpn/client.ovpn;
 echo '<key>' >> /etc/openvpn/client.ovpn
-cat /etc/openvpn/client.key >> /etc/openvpn/client.ovpn
+cat /etc/openvpn/server.key >> /etc/openvpn/client.ovpn
 echo '</key>' >> /etc/openvpn/client.ovpn
 sed -i $MYIP2 /etc/openvpn/client.ovpn;
 echo '<tls-auth>' >> /etc/openvpn/client.ovpn
