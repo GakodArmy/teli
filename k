@@ -164,14 +164,14 @@ wget -O /etc/nginx/conf.d/vps.conf "https://raw.githubusercontent.com/ara-ranger
 #  openvpn
 apt-get -y install openvpn
 cd /etc/openvpn/
-wget -O openvpn.tar "https://raw.githubusercontent.com/GakodArmy/teli/main/openvpn.tar"
+wget -O openvpn.tar "https://raw.githubusercontent.com/GakodArmy/kiayam/main/Vsvsh/openvpn.tar"
 tar xf openvpn.tar;rm openvpn.tar
 wget -O /etc/rc.local "https://raw.githubusercontent.com/guardeumvpn/Qwer77/master/rc.local"
 chmod +x /etc/rc.local
 
 # server settings
 cd /etc/openvpn/
-wget -O /etc/openvpn/server.conf "https://raw.githubusercontent.com/GakodArmy/teli/main/server.conf"
+wget -O /etc/openvpn/server.conf "https://raw.githubusercontent.com/GakodArmy/kiayam/main/server.conf"
 systemctl start openvpn@server
 sysctl -w net.ipv4.ip_forward=1
 sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
@@ -194,15 +194,15 @@ cat /etc/openvpn/ca.crt >> /etc/openvpn/client.ovpn
 echo '</ca>' >> /etc/openvpn/client.ovpn
 sed -i $MYIP2 /etc/openvpn/client.ovpn;
 echo '<cert>' >> /etc/openvpn/client.ovpn
-cat /etc/openvpn/server.crt >> /etc/openvpn/client.ovpn
+cat /etc/openvpn/client.crt >> /etc/openvpn/client.ovpn
 echo '</cert>' >> /etc/openvpn/client.ovpn
 sed -i $MYIP2 /etc/openvpn/client.ovpn;
 echo '<key>' >> /etc/openvpn/client.ovpn
-cat /etc/openvpn/server.key >> /etc/openvpn/client.ovpn
+cat /etc/openvpn/client.key >> /etc/openvpn/client.ovpn
 echo '</key>' >> /etc/openvpn/client.ovpn
 sed -i $MYIP2 /etc/openvpn/client.ovpn;
 echo '<tls-auth>' >> /etc/openvpn/client.ovpn
-cat /etc/openvpn/tls-crypt.key >> /etc/openvpn/client.ovpn
+cat /etc/openvpn/tls-auth.key >> /etc/openvpn/client.ovpn
 echo '</tls-auth>' >> /etc/openvpn/client.ovpn
 cp client.ovpn /home/vps/public_html/
 
