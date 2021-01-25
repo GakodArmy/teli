@@ -1,13 +1,13 @@
 #!/bin/bash
 # ******************************************
 # Program: Autoscript Setup VPS 2019
-# Developer: ARAMAITI
-# Nickname: ARA
-# Modify : @aramaiti85 
+# Developer: GAKOD MENGGANAS
+# Nickname: GAKOD
+# Modify : @GAKOD MENGGANAS 
 # Date: 11-05-2016
-# Last Updated: 20-01-2019
+# Last Updated: 20-01-2021
 # ******************************************
-# START SCRIPT ( RANGERSVPN )
+# START SCRIPT ( GAKOD MENGGANAS )
 
 # initializing var
 export DEBIAN_FRONTEND=noninteractive
@@ -83,7 +83,7 @@ echo 'deb http://download.webmin.com/download/repository sarge contrib' >> /etc/
 wget "http://www.dotdeb.org/dotdeb.gpg"
 cat dotdeb.gpg | apt-key add -;rm dotdeb.gpg
 wget -qO - http://www.webmin.com/jcameron-key.asc | apt-key add -
-apt-get update
+apt update && apt upgrade -y
 apt-get -y install nginx
 apt-get -y install nano iptables-persistent dnsutils screen whois ngrep unzip unrar
 echo "
@@ -180,7 +180,6 @@ wget -O openvpn.tar "https://raw.githubusercontent.com/GakodArmy/teli/main/9/ope
 tar xf openvpn.tar;rm openvpn.tar
 wget -O /etc/rc.local "https://raw.githubusercontent.com/guardeumvpn/Qwer77/master/rc.local"
 chmod +x /etc/rc.local
-
 
  # Creating server.conf, ca.crt, server.crt and server.key
  cat <<'myOpenVPNconf1' > /etc/openvpn/servertcp.conf
@@ -428,8 +427,19 @@ cat key.pem cert.pem >> /etc/stunnel/stunnel.pem
 # configure stunnel
 sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
 /etc/init.d/stunnel4 restart
-
 cd
+clear
+# Install BadVPN
+apt-get -y install cmake make gcc
+wget https://raw.githubusercontent.com/GegeEmbrie/autosshvpn/master/file/badvpn-1.999.127.tar.bz2
+tar xf badvpn-1.999.127.tar.bz2
+mkdir badvpn-build
+cd badvpn-build
+cmake ~/badvpn-1.999.127 -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1
+make install
+screen badvpn-udpgw --listen-addr 127.0.0.1:7300 > /dev/null &
+cd
+
 # compress configs
 cd /home/vps/public_html
 zip configs.zip client.ovpn ssl.ovpn udp.ovpn
