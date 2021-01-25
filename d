@@ -36,21 +36,21 @@ chmod +x /etc/openvpn/openvpn.bash
 # openvpn config
 wget -O /var/www/html/tcp.ovpn "https://raw.githubusercontent.com/bengali89/ceudp/main/client.conf"
 sed -i $MYIP2 /var/www/html/tcp.ovpn;
-echo '<ca>' >> /etc/openvpn/client.ovpn
-cat /etc/openvpn/ca.crt >> /etc/openvpn/client.ovpn
-echo '</ca>' >> /etc/openvpn/client.ovpn
+echo '<ca>' >> /var/www/html/client.ovpn
+cat /etc/openvpn/ca.crt >> /var/www/html/client.ovpn
+echo '</ca>' >> /var/www/html/client.ovpn
 sed -i $MYIP2 /var/www/html/tcp.ovpn;
-echo '<cert>' >> /etc/openvpn/client.ovpn
-cat /etc/openvpn/client.crt >> /etc/openvpn/client.ovpn
-echo '</cert>' >> /etc/openvpn/client.ovpn
-sed -i $MYIP2 /etc/openvpn/client.ovpn;
-echo '<key>' >> /etc/openvpn/client.ovpn
-cat /etc/openvpn/client.key >> /etc/openvpn/client.ovpn
-echo '</key>' >> /etc/openvpn/client.ovpn
+echo '<cert>' >> /var/www/html/client.ovpn
+cat /etc/openvpn/client.crt >> /var/www/html/client.ovpn
+echo '</cert>' >> /var/www/html/client.ovpn
+sed -i $MYIP2 /var/www/html/client.ovpn;
+echo '<key>' >> /var/www/html/client.ovpn
+cat /etc/openvpn/client.key >> /var/www/html/client.ovpn
+echo '</key>' >> /var/www/html/client.ovpn
 sed -i $MYIP2 /var/www/html/tcp.ovpn;
-echo '<tls-auth>' >> /etc/openvpn/client.ovpn
-cat /etc/openvpn/tls-auth.key >> /etc/openvpn/client.ovpn
-echo '</tls-auth>' >> /etc/openvpn/client.ovpn
+echo '<tls-auth>' >> /var/www/html/client.ovpn
+cat /etc/openvpn/tls-auth.key >> /var/www/html/client.ovpn
+echo '</tls-auth>' >> /var/www/html/client.ovpn
 cp client.ovpn /var/www/html/
 
 service openvpn restart
