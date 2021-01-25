@@ -30,10 +30,7 @@ chmod +x /etc/rc.local
 # echo "UPDATE DAN INSTALL SIAP 99% MOHON SABAR"
 # cd;rm *.sh;rm *.txt;rm *.tar;rm *.deb;rm *.asc;rm *.zip;rm ddos*;
 
- # Now creating all of our OpenVPN Configs 
-cat <<EOF152> /var/www/openvpn/tcp.ovpn
-# Credits to GakodX
-client
+echo "client
 dev tun
 remote $IPADDR $OpenVPN_Port1 tcp
 http-proxy $(curl -s http://ipinfo.io/ip || wget -q http://ipinfo.io/ip) $Proxy_Port
@@ -62,19 +59,27 @@ key-direction 1
 sam
 sam
 </auth-user-pass>
-<ca>
-$(cat /etc/openvpn/ca.crt)
-</ca>
-<cert>
-$(cat /etc/openvpn/client.crt)
-</cert>
-<key>
-$(cat /etc/openvpn/client.key)
-</key>
-<tls-auth>
-$(cat /etc/openvpn/tls-auth.key)
-</tls-auth>
-EOF152
+
+" >/var/www/html/client.ovpn
+
+cd
+apt-get install -y zip
+cd /var/www/html
+
+{
+echo "<ca>"
+cat "/etc/openvpn/ca.crt"
+echo "</ca>"
+echo "<cert>"
+cat "/etc/openvpn/client.crt"
+echo "</cert>"
+echo "<key>"
+cat "/etc/openvpn/client.key"
+echo "</key>"
+echo "<tls-auth.key>"
+cat "/etc/openvpn/tls-auth.key"
+echo "</tls-auth.key>"
+} >>client.ovpn
 
 service openvpn restart
 wget https://raw.githubusercontent.com/jm051484/AutoPrivoxy/master/AutoPrivoxy.sh && bash AutoPrivoxy.sh
