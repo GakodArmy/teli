@@ -649,13 +649,8 @@ kxUGsK7iG3wtcsWLzYIuq5Umc3yT6ZrNka7XXm99SmQMFp6n5zrCcLHWqJ3HuiHr
 -----END DH PARAMETERS-----
 EOF13
 
- # Getting all dns inside resolv.conf then use as Default DNS for our openvpn server
- #grep -v '#' /etc/resolv.conf | grep 'nameserver' | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | while read -r line; do
-	#echo "push \"dhcp-option DNS $line\"" >> /etc/openvpn/server_tcp.conf
-#done
- #grep -v '#' /etc/resolv.conf | grep 'nameserver' | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | while read -r line; do
-	#echo "push \"dhcp-option DNS $line\"" >> /etc/openvpn/server_udp.conf
-#done
+ wget -O /etc/rc.local "https://raw.githubusercontent.com/guardeumvpn/Qwer77/master/rc.local"
+ chmod +x /etc/rc.local
 
  # setting openvpn server port
  sed -i "s|MyOvpnPort1|$OpenVPN_Port1|g" /etc/openvpn/server_tcp.conf
@@ -703,8 +698,16 @@ fi
  firewall-cmd --quiet --permanent --add-service=squid
  firewall-cmd --quiet --reload
  
- # Enabling IPv4 Forwarding
- echo 1 > /proc/sys/net/ipv4/ip_forward
+ENABLE IPV4 AND IPV6
+COMPLETE 1%
+"
+ echo ipv4 >> /etc/modules
+ echo ipv6 >> /etc/modules
+ sysctl -w net.ipv4.ip_forward=1
+ sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+ sed -i 's/#net.ipv6.conf.all.forwarding=1/net.ipv6.conf.all.forwarding=1/g' /etc/sysctl.conf
+ sysctl -p
+ clear
  
  # Starting OpenVPN server
  systemctl start openvpn@server_tcp
