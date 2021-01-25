@@ -278,7 +278,7 @@ mute 3
 plugin /etc/openvpn/openvpn-auth-pam.so /etc/pam.d/login
 verify-client-cert none
 username-as-common-name
-myOpenVPNconf1
+myOpenVPNconf
 cat <<'myOpenVPNconf2' > /etc/openvpn/server_udp.conf
 # LODIxyrussScript
 
