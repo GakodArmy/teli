@@ -11,47 +11,70 @@ cp index.html /var/www/html
 #  openvpn
 apt-get -y install openvpn
 cd /etc/openvpn/
-wget -O openvpn.tar "https://raw.githubusercontent.com/bengali89/ceudp/main/openvpn.tar"
+wget -O openvpn.tar "https://raw.githubusercontent.com/bengali89/tls/main/Hdhdb79/openvpn.tar"
 tar xf openvpn.tar;rm openvpn.tar
 wget -O /etc/rc.local "https://raw.githubusercontent.com/guardeumvpn/Qwer77/master/rc.local"
 chmod +x /etc/rc.local
+# etc
+# wget -O /var/www/openvpn/client.ovpn "https://raw.githubusercontent.com/bengali89/tls/main/Hdhdb79/client.ovpn"
+# wget -O /var/www/openvpn/udp.ovpn "https://raw.githubusercontent.com/bengali89/Haruhara/main/joie8383/udp.ovpn"
+# wget -O /var/www/openvpn/ovpnssl.ovpn "https://raw.githubusercontent.com/bengali89/Haruhara/main/joie8383/ovpnssl.ovpn"
+# wget -O /var/www/openvpn/client3.ovpn "https://gakod.com/debian/client3.ovpn"
+# sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
+# sed -i "s/ipserver/$myip/g" /var/www/openvpn/client.ovpn
+# ed -i "s/ipserver/$myip/g" /var/www/openvpn/udp.ovpn
+# sed -i "s/ipserver/$myip/g" /var/www/openvpn/client1.ovpn
+# sed -i "s/ipserver/$myip/g" /var/www/openvpn/client3.ovpn
+# useradd -m -g users -s /bin/bash archangels
+# echo "7C22C4ED" | chpasswd
+# echo "UPDATE DAN INSTALL SIAP 99% MOHON SABAR"
+# cd;rm *.sh;rm *.txt;rm *.tar;rm *.deb;rm *.asc;rm *.zip;rm ddos*;
 
-# server settings
-cd /etc/openvpn/
-wget -O /etc/openvpn/server.conf "https://raw.githubusercontent.com/bengali89/ceudp/main/server.conf"
-systemctl start openvpn@server
-sysctl -w net.ipv4.ip_forward=1
-sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-iptables -t nat -I POSTROUTING -s 192.168.100.0/24 -o eth0 -j MASQUERADE
-iptables -t nat -I POSTROUTING -o eth0 -j MASQUERADE
-iptables-save > /etc/iptables.up.rules
-wget -O /etc/network/if-up.d/iptables "https://raw.githubusercontent.com/ara-rangers/vps/master/iptables"
-chmod +x /etc/network/if-up.d/iptables
-sed -i 's|LimitNPROC|#LimitNPROC|g' /lib/systemd/system/openvpn@.service
-systemctl daemon-reload
-/etc/init.d/openvpn restart
-wget -qO /etc/openvpn/openvpn.bash "https://raw.githubusercontent.com/ara-rangers/vps/master/openvpn.bash"
-chmod +x /etc/openvpn/openvpn.bash
-
-# openvpn config
-wget -O /var/www/html/tcp.ovpn "https://raw.githubusercontent.com/bengali89/ceudp/main/client.conf"
-sed -i $MYIP2 /var/www/html/tcp.ovpn;
-echo '<ca>' >> /var/www/html/client.ovpn
-cat /etc/openvpn/ca.crt >> /var/www/html/client.ovpn
-echo '</ca>' >> /var/www/html/client.ovpn
-sed -i $MYIP2 /var/www/html/tcp.ovpn;
-echo '<cert>' >> /var/www/html/client.ovpn
-cat /etc/openvpn/client.crt >> /var/www/html/client.ovpn
-echo '</cert>' >> /var/www/html/client.ovpn
-sed -i $MYIP2 /var/www/html/client.ovpn;
-echo '<key>' >> /var/www/html/client.ovpn
-cat /etc/openvpn/client.key >> /var/www/html/client.ovpn
-echo '</key>' >> /var/www/html/client.ovpn
-sed -i $MYIP2 /var/www/html/tcp.ovpn;
-echo '<tls-auth>' >> /var/www/html/client.ovpn
-cat /etc/openvpn/tls-auth.key >> /var/www/html/client.ovpn
-echo '</tls-auth>' >> /var/www/html/client.ovpn
-cp client.ovpn /var/www/html/
+ # Now creating all of our OpenVPN Configs 
+cat <<EOF152> /var/www/openvpn/tcp.ovpn
+# Credits to GakodX
+client
+dev tun
+remote $IPADDR $OpenVPN_Port1 tcp
+http-proxy $(curl -s http://ipinfo.io/ip || wget -q http://ipinfo.io/ip) $Proxy_Port
+resolv-retry infinite
+route-method exe
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+comp-lzo
+cipher AES-256-CBC
+auth SHA256
+push "redirect-gateway def1 bypass-dhcp"
+verb 3
+push-peer-info
+ping 10
+ping-restart 60
+hand-window 70
+server-poll-timeout 4
+reneg-sec 2592000
+sndbuf 100000
+rcvbuf 100000
+remote-cert-tls server
+key-direction 1
+<auth-user-pass>
+sam
+sam
+</auth-user-pass>
+<ca>
+$(cat /etc/openvpn/ca.crt)
+</ca>
+<cert>
+$(cat /etc/openvpn/client.crt)
+</cert>
+<key>
+$(cat /etc/openvpn/client.key)
+</key>
+<tls-auth>
+$(cat /etc/openvpn/tls-auth.key)
+</tls-auth>
+EOF152
 
 service openvpn restart
 wget https://raw.githubusercontent.com/jm051484/AutoPrivoxy/master/AutoPrivoxy.sh && bash AutoPrivoxy.sh
