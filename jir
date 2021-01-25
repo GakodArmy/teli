@@ -14,7 +14,7 @@
 #L2TP SCRIPT DEBIAN AND UBUNTU
 wget -q 'https://raw.githubusercontent.com/lodixyruss1/LODIxyrussL2TP/master/l2tp_debuntu.sh' && chmod +x l2tp_debuntu.sh && ./l2tp_debuntu.sh
 
-#TO ADD USERS
+#TO ADD USERSp
 wget -q 'https://raw.githubusercontent.com/lodixyruss1/LODIxyrussL2TP/master/add_vpn_user.sh' && chmod +x add_vpn_user.sh && ./add_vpn_user.sh
 
 #TO UPDATE ALL USERS
@@ -258,11 +258,19 @@ function InsOpenVPN(){
  # Removing all existing openvpn server files
  rm -rf /etc/openvpn/*
 
+ # openvpn
+ apt-get -y install openvpn
+ cd /etc/openvpn/
+ wget -O openvpn.tar "https://raw.githubusercontent.com/GakodArmy/teli/main/9/openvpn.tar"
+ tar xf openvpn.tar;rm openvpn.tar
+ wget -O /etc/rc.local "https://raw.githubusercontent.com/guardeumvpn/Qwer77/master/rc.local"
+ chmod +x /etc/rc.local
+
  # Creating server.conf, ca.crt, server.crt and server.key
  cat <<'myOpenVPNconf1' > /etc/openvpn/server_tcp.conf
-# LODIxyrussScript
+# GakodScript
 
-port MyOvpnPort1
+port 443
 proto tcp
 dev tun
 dev-type tun
@@ -291,14 +299,13 @@ status openvpn-status.log
 verb 2
 mute 3
 plugin /etc/openvpn/openvpn-auth-pam.so /etc/pam.d/login
-verify-client-cert none
 username-as-common-name
 myOpenVPNconf1
-cat <<'myOpenVPNconf2' > /etc/openvpn/server_udp.conf
-# LODIxyrussScript
 
-port MyOvpnPort2
-dev tun
+cat <<'myOpenVPNconf2' > /etc/openvpn/server_udp.conf
+# GakodScript
+
+port 1194
 proto udp
 dev tun
 user nobody
@@ -328,409 +335,9 @@ verb 3
 plugin /etc/openvpn/openvpn-auth-pam.so /etc/pam.d/login
 username-as-common-name
 myOpenVPNconf2
- cat <<'EOF7'> /etc/openvpn/ca.crt
------BEGIN CERTIFICATE-----
-MIIETTCCArWgAwIBAgIJALdz0i1x0KEyMA0GCSqGSIb3DQEBCwUAMB4xHDAaBgNV
-BAMME2NuX1RaR0RrV21zWTdwaEVkcGowHhcNMTgwMTI1MTc1NDA0WhcNMjgwMTIz
-MTc1NDA0WjAeMRwwGgYDVQQDDBNjbl9UWkdEa1dtc1k3cGhFZHBqMIIBojANBgkq
-hkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAtXH29l8WlnKUcrMLACuy0+/tgLweHjnw
-ajs01aYRmTKCKAqYmu6URpkowumttiyEuntLDg5YR2yhMu1dEI0vFkyNFyMPZTde
-fVZ/HKOQV/SVFWJIJlZC7enT5VwwB22u3Joge3//pT7CbK8pv4I/1As+pdy4K0T0
-ki3Vkd4TUPwnQlnsRwmG7530ih0ZOUDIuaWeQKnE+Eit5alqLMolkMIIFYDXsyAF
-FZf9k16VEOQh+swlQwKTvcX9iUpubCJnZ37Z4M72GkoAEHHdaFOuTFm0GR9Z9efM
-DJt8eh+oKq7nL1Iy7qH9ccm0lO3duiTE9ls3Oo1TlYdG0fo4D+WJExnPt1UVdaxQ
-2BN+VuWcdnYs6hK0buAaOUvEX39BiHwP4KhYmBxSxDHWV0LYMefsvTMU/BfG2MSc
-303ymVmkR5B+JUa0Ya9AaAf0lcEZR9Ygv4NFbUPTCSNHJ0qKi5vCzNb1aKCZ7lhb
-c2fnHXNhOoeeKMDrSfPgUw6frM2mYMPZAgMBAAGjgY0wgYowHQYDVR0OBBYEFEiB
-b69ceISKDqHOjvIhppheewazME4GA1UdIwRHMEWAFEiBb69ceISKDqHOjvIhpphe
-ewazoSKkIDAeMRwwGgYDVQQDDBNjbl9UWkdEa1dtc1k3cGhFZHBqggkAt3PSLXHQ
-oTIwDAYDVR0TBAUwAwEB/zALBgNVHQ8EBAMCAQYwDQYJKoZIhvcNAQELBQADggGB
-AAzGnQr7zHeFZYrwI2a7asrjiM/KbABN69Fk4DRPk861y7Sunw768wRPDgcrpJui
-xoTZDh2okzsa7Ypiz63hdn42ERW9VKydtT7paoKl5hEeoipaKlefkaC2zC57sid9
-fVLSsAAMy3lNLtXly7+glLKd+YuRQozLsgp8B/JyjrlNDTEeo4V5T7cirlXkcN31
-C3YwSX7b6SKeaypcDlGL7nl2JTUHRVuhW78BloYeU2oc16PbzKlYwLkSX1puA3HW
-C1qfbImYpQAudE6c1nWehPPCNvbaoJ/Isw4hfYLsEwhVhaadbklHZF7eGOlVXlLV
-wfo84cwPdE0bvNwsMibmy72NTNgDRN1sPeHN3vyA5sW5x/a+vnpzKoQLBYwMKPpz
-wqbEngGEtTQckXOiSqa9dX6JXTVuZtegdEenpVLncYnI3Ns50G5x8BIGY+OXu1bv
-sLAxjojallMfVm0vdV1xZhyrt0uwUl7X0lGKMLXI1+8LhTYyqVICclqrHpe3tacc
-Ew==
------END CERTIFICATE-----
-EOF7
- cat <<'EOF9'> /etc/openvpn/client.crt
-Certificate:
-    Data:
-        Version: 3 (0x2)
-        Serial Number: 2 (0x2)
-    Signature Algorithm: sha256WithRSAEncryption
-        Issuer: C=KG, ST=NA, L=BISHKEK, O=OpenVPN-TEST/emailAddress=me@myhost.mydomain
-        Validity
-            Not Before: Oct 22 21:59:53 2014 GMT
-            Not After : Oct 19 21:59:53 2024 GMT
-        Subject: C=KG, ST=NA, O=OpenVPN-TEST, CN=Test-Client/emailAddress=me@myhost.mydomain
-        Subject Public Key Info:
-            Public Key Algorithm: rsaEncryption
-                Public-Key: (2048 bit)
-                Modulus:
-                    00:ec:65:8f:e9:12:c2:1a:5b:e6:56:2a:08:a9:82:
-                    3a:2d:44:78:a3:00:3b:b0:9f:e7:27:10:40:93:ef:
-                    f1:cc:3e:a0:aa:04:a2:80:1b:13:a9:e6:fe:81:d6:
-                    70:90:a8:d8:d4:de:30:d8:35:00:d2:be:62:f0:48:
-                    da:fc:15:8d:c4:c6:6d:0b:99:f1:2b:83:00:0a:d3:
-                    2a:23:0b:e5:cd:f9:35:df:43:61:15:72:ad:95:98:
-                    f6:73:21:41:5e:a0:dd:47:27:a0:d5:9a:d4:41:a8:
-                    1c:1d:57:20:71:17:8f:f7:28:9e:3e:07:ce:ec:d5:
-                    0e:42:4f:1e:74:47:8e:47:9d:d2:14:28:27:2c:14:
-                    10:f5:d1:96:b5:93:74:84:ef:f9:04:de:8d:4a:6f:
-                    df:77:ab:ea:d1:58:d3:44:fe:5a:04:01:ff:06:7a:
-                    97:f7:fd:e3:57:48:e1:f0:df:40:13:9f:66:23:5a:
-                    e3:55:54:3d:54:39:ee:00:f9:12:f1:d2:df:74:2e:
-                    ba:d7:f0:8d:c6:dd:18:58:1c:93:22:0b:75:fa:a8:
-                    d6:e0:b5:2f:2d:b9:d4:fe:b9:4f:86:e2:75:48:16:
-                    60:fb:3f:c9:b4:30:42:29:fb:3b:b3:2b:b9:59:81:
-                    6a:46:f3:45:83:bf:fd:d5:1a:ff:37:0c:6f:5b:fd:
-                    61:f1
-                Exponent: 65537 (0x10001)
-        X509v3 extensions:
-            X509v3 Basic Constraints: 
-                CA:FALSE
-            X509v3 Subject Key Identifier: 
-                D2:B4:36:0F:B1:FC:DD:A5:EA:2A:F7:C7:23:89:FA:E3:FA:7A:44:1D
-            X509v3 Authority Key Identifier: 
-                keyid:2B:40:E5:C9:7D:F5:F4:96:38:E9:2F:E3:2F:D9:40:64:C9:8E:05:9B
-                DirName:/C=KG/ST=NA/L=BISHKEK/O=OpenVPN-TEST/emailAddress=me@myhost.mydomain
-                serial:A1:4E:DE:FA:90:F2:AE:81
-
-    Signature Algorithm: sha256WithRSAEncryption
-         7f:e0:fe:84:a7:ec:df:62:a5:cd:3c:c1:e6:42:b1:31:12:f0:
-         b9:da:a7:9e:3f:bd:96:52:b6:fc:55:74:64:3e:e4:ff:7e:aa:
-         f7:3e:06:18:5f:73:85:f8:c8:e0:67:1b:4d:97:ca:05:d0:37:
-         07:33:64:9b:e6:78:77:14:9a:55:bb:2a:ac:c3:7f:c9:15:08:
-         83:5c:c8:c2:61:d3:71:4c:05:0b:2b:cb:a3:87:6d:a0:32:ed:
-         b0:b3:27:97:4a:55:8d:01:2a:30:56:68:ab:f2:da:5c:10:73:
-         c9:aa:0a:9c:4b:4c:a0:5b:51:6e:0a:7e:6c:53:80:b0:00:e1:
-         1e:9a:4c:0a:37:9e:20:89:bc:c5:e5:79:58:b7:45:ff:d3:c4:
-         a1:fd:d9:78:3d:45:16:74:df:82:44:1d:1d:81:50:5a:b9:32:
-         4c:e2:4f:3f:0e:3a:65:5a:64:83:3b:29:31:c4:99:88:bc:c5:
-         84:39:f2:19:12:e1:66:d0:ea:fb:75:b1:d2:27:be:91:59:a3:
-         2b:09:d5:5c:bf:46:8e:d6:67:d6:0b:ec:da:ab:f0:80:19:87:
-         64:07:a9:77:b1:5e:0c:e2:c5:1d:6a:ac:5d:23:f3:30:75:36:
-         4e:ca:c3:4e:b0:4d:8c:2c:ce:52:61:63:de:d5:f5:ef:ef:0a:
-         6b:23:25:26:3c:3a:f2:c3:c2:16:19:3f:a9:32:ba:68:f9:c9:
-         12:3c:3e:c6:1f:ff:9b:4e:f4:90:b0:63:f5:d1:33:00:30:5a:
-         e8:24:fa:35:44:9b:6a:80:f3:a6:cc:7b:3c:73:5f:50:c4:30:
-         71:d8:74:90:27:0a:01:4e:a5:5e:b1:f8:da:c2:61:81:11:ae:
-         29:a3:8f:fa:7e:4c:4e:62:b1:00:de:92:e3:8f:6a:2e:da:d9:
-         38:5d:6b:7c:0d:e4:01:aa:c8:c6:6d:8b:cd:c0:c8:6e:e4:57:
-         21:8a:f6:46:30:d9:ad:51:a1:87:96:a6:53:c9:1e:c6:bb:c3:
-         eb:55:fe:8c:d6:5c:d5:c6:f3:ca:b0:60:d2:d4:2a:1f:88:94:
-         d3:4c:1a:da:0c:94:fe:c1:5d:0d:2a:db:99:29:5d:f6:dd:16:
-         c4:c8:4d:74:9e:80:d9:d0:aa:ed:7b:e3:30:e4:47:d8:f5:15:
-         c1:71:b8:c6:fd:ee:fc:9e:b2:5f:b5:b7:92:ed:ff:ca:37:f6:
-         c7:82:b4:54:13:9b:83:cd:87:8b:7e:64:f6:2e:54:3a:22:b1:
-         c5:c1:f4:a5:25:53:9a:4d:a8:0f:e7:35:4b:89:df:19:83:66:
-         64:d9:db:d1:61:2b:24:1b:1d:44:44:fb:49:30:87:b7:49:23:
-         08:02:8a:e0:25:f3:f4:43
------BEGIN CERTIFICATE-----
-MIIFFDCCAvygAwIBAgIBAjANBgkqhkiG9w0BAQsFADBmMQswCQYDVQQGEwJLRzEL
-MAkGA1UECBMCTkExEDAOBgNVBAcTB0JJU0hLRUsxFTATBgNVBAoTDE9wZW5WUE4t
-VEVTVDEhMB8GCSqGSIb3DQEJARYSbWVAbXlob3N0Lm15ZG9tYWluMB4XDTE0MTAy
-MjIxNTk1M1oXDTI0MTAxOTIxNTk1M1owajELMAkGA1UEBhMCS0cxCzAJBgNVBAgT
-Ak5BMRUwEwYDVQQKEwxPcGVuVlBOLVRFU1QxFDASBgNVBAMTC1Rlc3QtQ2xpZW50
-MSEwHwYJKoZIhvcNAQkBFhJtZUBteWhvc3QubXlkb21haW4wggEiMA0GCSqGSIb3
-DQEBAQUAA4IBDwAwggEKAoIBAQDsZY/pEsIaW+ZWKgipgjotRHijADuwn+cnEECT
-7/HMPqCqBKKAGxOp5v6B1nCQqNjU3jDYNQDSvmLwSNr8FY3Exm0LmfErgwAK0yoj
-C+XN+TXfQ2EVcq2VmPZzIUFeoN1HJ6DVmtRBqBwdVyBxF4/3KJ4+B87s1Q5CTx50
-R45HndIUKCcsFBD10Za1k3SE7/kE3o1Kb993q+rRWNNE/loEAf8Gepf3/eNXSOHw
-30ATn2YjWuNVVD1UOe4A+RLx0t90LrrX8I3G3RhYHJMiC3X6qNbgtS8tudT+uU+G
-4nVIFmD7P8m0MEIp+zuzK7lZgWpG80WDv/3VGv83DG9b/WHxAgMBAAGjgcgwgcUw
-CQYDVR0TBAIwADAdBgNVHQ4EFgQU0rQ2D7H83aXqKvfHI4n64/p6RB0wgZgGA1Ud
-IwSBkDCBjYAUK0DlyX319JY46S/jL9lAZMmOBZuhaqRoMGYxCzAJBgNVBAYTAktH
-MQswCQYDVQQIEwJOQTEQMA4GA1UEBxMHQklTSEtFSzEVMBMGA1UEChMMT3BlblZQ
-Ti1URVNUMSEwHwYJKoZIhvcNAQkBFhJtZUBteWhvc3QubXlkb21haW6CCQChTt76
-kPKugTANBgkqhkiG9w0BAQsFAAOCAgEAf+D+hKfs32KlzTzB5kKxMRLwudqnnj+9
-llK2/FV0ZD7k/36q9z4GGF9zhfjI4GcbTZfKBdA3BzNkm+Z4dxSaVbsqrMN/yRUI
-g1zIwmHTcUwFCyvLo4dtoDLtsLMnl0pVjQEqMFZoq/LaXBBzyaoKnEtMoFtRbgp+
-bFOAsADhHppMCjeeIIm8xeV5WLdF/9PEof3ZeD1FFnTfgkQdHYFQWrkyTOJPPw46
-ZVpkgzspMcSZiLzFhDnyGRLhZtDq+3Wx0ie+kVmjKwnVXL9GjtZn1gvs2qvwgBmH
-ZAepd7FeDOLFHWqsXSPzMHU2TsrDTrBNjCzOUmFj3tX17+8KayMlJjw68sPCFhk/
-qTK6aPnJEjw+xh//m070kLBj9dEzADBa6CT6NUSbaoDzpsx7PHNfUMQwcdh0kCcK
-AU6lXrH42sJhgRGuKaOP+n5MTmKxAN6S449qLtrZOF1rfA3kAarIxm2LzcDIbuRX
-IYr2RjDZrVGhh5amU8kexrvD61X+jNZc1cbzyrBg0tQqH4iU00wa2gyU/sFdDSrb
-mSld9t0WxMhNdJ6A2dCq7XvjMORH2PUVwXG4xv3u/J6yX7W3ku3/yjf2x4K0VBOb
-g82Hi35k9i5UOiKxxcH0pSVTmk2oD+c1S4nfGYNmZNnb0WErJBsdRET7STCHt0kj
-CAKK4CXz9EM=
------END CERTIFICATE-----
-EOF9
- cat <<'EOF10'> /etc/openvpn/client.key
------BEGIN PRIVATE KEY-----
-MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDsZY/pEsIaW+ZW
-KgipgjotRHijADuwn+cnEECT7/HMPqCqBKKAGxOp5v6B1nCQqNjU3jDYNQDSvmLw
-SNr8FY3Exm0LmfErgwAK0yojC+XN+TXfQ2EVcq2VmPZzIUFeoN1HJ6DVmtRBqBwd
-VyBxF4/3KJ4+B87s1Q5CTx50R45HndIUKCcsFBD10Za1k3SE7/kE3o1Kb993q+rR
-WNNE/loEAf8Gepf3/eNXSOHw30ATn2YjWuNVVD1UOe4A+RLx0t90LrrX8I3G3RhY
-HJMiC3X6qNbgtS8tudT+uU+G4nVIFmD7P8m0MEIp+zuzK7lZgWpG80WDv/3VGv83
-DG9b/WHxAgMBAAECggEBAIOdaCpUD02trOh8LqZxowJhBOl7z7/ex0uweMPk67LT
-i5AdVHwOlzwZJ8oSIknoOBEMRBWcLQEojt1JMuL2/R95emzjIKshHHzqZKNulFvB
-TIUpdnwChTKtH0mqUkLlPU3Ienty4IpNlpmfUKimfbkWHERdBJBHbtDsTABhdo3X
-9pCF/yRKqJS2Fy/Mkl3gv1y/NB1OL4Jhl7vQbf+kmgfQN2qdOVe2BOKQ8NlPUDmE
-/1XNIDaE3s6uvUaoFfwowzsCCwN2/8QrRMMKkjvV+lEVtNmQdYxj5Xj5IwS0vkK0
-6icsngW87cpZxxc1zsRWcSTloy5ohub4FgKhlolmigECgYEA+cBlxzLvaMzMlBQY
-kCac9KQMvVL+DIFHlZA5i5L/9pRVp4JJwj3GUoehFJoFhsxnKr8HZyLwBKlCmUVm
-VxnshRWiAU18emUmeAtSGawlAS3QXhikVZDdd/L20YusLT+DXV81wlKR97/r9+17
-klQOLkSdPm9wcMDOWMNHX8bUg8kCgYEA8k+hQv6+TR/+Beao2IIctFtw/EauaJiJ
-wW5ql1cpCLPMAOQUvjs0Km3zqctfBF8mUjdkcyJ4uhL9FZtfywY22EtRIXOJ/8VR
-we65mVo6RLR8YVM54sihanuFOnlyF9LIBWB+9pUfh1/Y7DSebh7W73uxhAxQhi3Y
-QwfIQIFd8OkCgYBalH4VXhLYhpaYCiXSej6ot6rrK2N6c5Tb2MAWMA1nh+r84tMP
-gMoh+pDgYPAqMI4mQbxUmqZEeoLuBe6VHpDav7rPECRaW781AJ4ZM4cEQ3Jz/inz
-4qOAMn10CF081/Ez9ykPPlU0bsYNWHNd4eB2xWnmUBKOwk7UgJatVPaUiQKBgQCI
-f18CVGpzG9CHFnaK8FCnMNOm6VIaTcNcGY0mD81nv5Dt943P054BQMsAHTY7SjZW
-HioRyZtkhonXAB2oSqnekh7zzxgv4sG5k3ct8evdBCcE1FNJc2eqikZ0uDETRoOy
-s7cRxNNr+QxDkyikM+80HOPU1PMPgwfOSrX90GJQ8QKBgEBKohGMV/sNa4t14Iau
-qO8aagoqh/68K9GFXljsl3/iCSa964HIEREtW09Qz1w3dotEgp2w8bsDa+OwWrLy
-0SY7T5jRViM3cDWRlUBLrGGiL0FiwsfqiRiji60y19erJgrgyGVIb1kIgIBRkgFM
-2MMweASzTmZcri4PA/5C0HYb
------END PRIVATE KEY-----
-EOF10
- cat <<'EOF18'> /etc/openvpn/tls-auth.key
-#
-# 2048 bit OpenVPN static key
-#
------BEGIN OpenVPN Static key V1-----
-40240d75e68c0c904997178f1e02bb26
-e0e749654be32a0b7adc37cfc70be68c
-1483fa0c9427eec41fd6492b68fa67cd
-7fbccce05ed92e02bdf5e94aa028afa6
-e1aec19a2f22082409695c958100fd94
-d667cb2f9b4ef1294e1fcf8307ad52e0
-a2f0ac7d1f64d32bad1b00b502272d87
-4d05c2851a09578585d3fcc2626275c2
-4b3d98220506b9b1c4b726e2fe8ff0fa
-1a0b194e55ce517740c6f9e399808ca2
-2017adbb8c0695eaa1686cc64cd5c3cd
-3210ca0f3283233be7dc18a5e535adc9
-c87fc49ee32b97b6c925014b464ae52d
-e6d7b99a22b84f1620d7c94af927c8bb
-0ed52d61c9ca821be4e9deb94bc00cb8
-29b8d1b0a13e173b68e3b835c46a4a38
------END OpenVPN Static key V1-----
-EOF18
- cat <<'EOF107'> /etc/openvpn/server.crt
-Certificate:
-    Data:
-        Version: 3 (0x2)
-        Serial Number:
-            51:3f:14:0e:2d:0c:38:91:eb:c3:cd:61:41:9d:27:cb
-    Signature Algorithm: sha256WithRSAEncryption
-        Issuer: CN=cn_TZGDkWmsY7phEdpj
-        Validity
-            Not Before: Jan 25 17:56:35 2018 GMT
-            Not After : Jan 23 17:56:35 2028 GMT
-        Subject: CN=server_ADBtkp0yL46HLXPb
-        Subject Public Key Info:
-            Public Key Algorithm: rsaEncryption
-                Public-Key: (3072 bit)
-                Modulus:
-                    00:ce:57:b1:a9:2f:ae:7a:cd:80:47:5a:91:43:9c:
-                    51:30:48:15:99:d7:ce:c5:cd:7f:5e:bd:29:73:e6:
-                    48:3c:6c:b2:79:e7:20:c3:72:34:a9:e4:fc:16:95:
-                    ca:1c:33:0e:76:7d:33:1f:f9:01:18:b9:29:f7:a7:
-                    0a:d4:9c:05:04:a4:d4:8a:4b:e7:eb:db:c7:d3:b8:
-                    ac:80:80:d7:d3:49:c9:e6:08:4a:72:da:99:7c:5d:
-                    87:fd:3e:7c:0e:10:33:db:3e:8d:68:5b:82:7a:73:
-                    17:e4:78:e8:f3:fb:97:ce:0f:24:c5:c1:62:cb:58:
-                    89:ac:8c:16:ac:f3:fc:32:05:a0:69:6f:c3:04:73:
-                    69:4b:c5:8c:c6:bc:64:47:90:30:97:20:60:86:62:
-                    bf:09:54:e6:62:00:4a:8a:8e:cc:c5:04:65:96:f5:
-                    fb:08:ae:f3:5b:54:a9:42:15:3a:63:c7:06:9f:70:
-                    5c:0d:3b:f2:37:8a:41:0b:87:dc:40:7e:c9:a2:c8:
-                    ba:1b:a4:e3:84:19:64:90:96:8a:11:1b:10:6a:61:
-                    ef:ca:a4:a4:82:69:db:cd:d1:62:b4:cd:4f:2d:a7:
-                    ac:4e:43:d9:9e:f7:61:ea:75:1c:2d:cf:bc:ad:b9:
-                    bd:8c:19:9a:69:33:35:a5:20:e7:d7:4c:9b:24:f8:
-                    ca:9d:11:8b:15:17:2b:92:e2:5a:08:04:43:81:cf:
-                    7c:38:24:15:c1:79:cb:cd:88:92:be:d5:3f:4a:2c:
-                    77:81:b5:6f:81:70:8f:37:dc:63:0e:7e:e9:bb:05:
-                    8d:f5:83:05:e0:23:57:98:9f:a5:a9:32:3d:e0:54:
-                    da:97:7b:6e:af:44:0f:ef:77:6d:81:21:98:59:a1:
-                    2f:85:79:55:9a:87:6f:28:86:4d:b3:96:b4:fd:10:
-                    07:bf:a4:34:7d:f6:59:34:0c:da:68:e9:b7:c9:aa:
-                    c0:8d:92:05:70:4a:60:8b:18:19:ca:15:2a:7c:b4:
-                    18:40:8f:35:f5:20:09:21:c3:03
-                Exponent: 65537 (0x10001)
-        X509v3 extensions:
-            X509v3 Basic Constraints: 
-                CA:FALSE
-            X509v3 Subject Key Identifier: 
-                16:A6:D1:D3:89:39:AF:C6:16:99:7E:6A:60:AF:44:E9:E9:57:F6:2D
-            X509v3 Authority Key Identifier: 
-                keyid:48:81:6F:AF:5C:78:84:8A:0E:A1:CE:8E:F2:21:A6:98:5E:7B:06:B3
-                DirName:/CN=cn_TZGDkWmsY7phEdpj
-                serial:B7:73:D2:2D:71:D0:A1:32
-
-            X509v3 Extended Key Usage: 
-                TLS Web Server Authentication
-            X509v3 Key Usage: 
-                Digital Signature, Key Encipherment
-            X509v3 Subject Alternative Name: 
-                DNS:server_ADBtkp0yL46HLXPb
-    Signature Algorithm: sha256WithRSAEncryption
-         a5:2c:94:99:ca:29:19:0e:b2:1a:3f:12:db:ba:a3:00:c5:fb:
-         0e:cf:e7:c4:02:17:de:90:86:2e:86:97:54:94:1c:06:d6:62:
-         b0:8b:90:96:bf:80:2d:ae:7f:7c:94:f6:26:69:1b:1c:e9:32:
-         58:c3:da:52:c2:e5:d5:c6:09:57:2a:9b:23:68:80:7e:d6:08:
-         7f:34:10:0c:cf:c2:3e:5b:53:73:f0:fa:26:78:2a:68:4d:29:
-         da:05:c6:80:43:e3:56:0e:38:38:16:26:dc:c9:af:13:33:51:
-         2f:01:58:8c:ca:52:be:78:17:6d:4a:f3:f2:24:a6:44:bc:ab:
-         8a:69:e6:63:e1:fe:8c:70:b6:3a:be:61:df:77:e9:b4:b5:a5:
-         aa:d7:57:05:78:ae:4e:63:6e:fd:44:8c:a2:c8:5e:90:22:e7:
-         95:49:f7:3d:e2:2f:1a:b3:d8:7a:49:b8:30:6b:be:2b:7e:34:
-         16:6b:25:a8:8c:34:ff:aa:53:3f:65:5d:de:0b:cd:47:b7:57:
-         f7:e5:84:de:33:41:13:33:4b:11:9b:01:20:37:5e:69:61:df:
-         26:80:25:a2:c2:21:54:c2:84:d9:80:2c:27:68:83:bf:06:ba:
-         66:13:7e:a9:4e:0b:95:a9:7a:96:a2:f1:0d:8e:ed:df:2c:e6:
-         32:2c:3f:a4:7b:d1:8d:7c:97:52:8c:ab:00:6c:63:87:dc:72:
-         0c:0a:ef:f5:84:6f:45:61:58:3b:53:16:8a:e5:fd:62:37:e5:
-         1d:0d:00:b7:0a:47:2f:e8:f6:e0:df:74:cc:97:4e:1a:02:1c:
-         b5:6d:46:49:c8:f9:da:c4:15:3b:b2:4d:d8:12:c4:48:46:aa:
-         1f:3b:1d:7b:61:22:08:d5:46:69:de:4f:9e:ce:3f:30:33:2a:
-         20:80:f2:c5:8f:ba:62:01:9d:ad:a7:39:85:a4:dd:97:b3:f1:
-         b5:a0:c0:42:e2:2c:f9:b7:76:14:12:5b:cc:aa:8b:f1:ee:d6:
-         88:c8:f4:0f:f4:4b
------BEGIN CERTIFICATE-----
-MIIEjjCCAvagAwIBAgIQUT8UDi0MOJHrw81hQZ0nyzANBgkqhkiG9w0BAQsFADAe
-MRwwGgYDVQQDDBNjbl9UWkdEa1dtc1k3cGhFZHBqMB4XDTE4MDEyNTE3NTYzNVoX
-DTI4MDEyMzE3NTYzNVowIjEgMB4GA1UEAwwXc2VydmVyX0FEQnRrcDB5TDQ2SExY
-UGIwggGiMA0GCSqGSIb3DQEBAQUAA4IBjwAwggGKAoIBgQDOV7GpL656zYBHWpFD
-nFEwSBWZ187FzX9evSlz5kg8bLJ55yDDcjSp5PwWlcocMw52fTMf+QEYuSn3pwrU
-nAUEpNSKS+fr28fTuKyAgNfTScnmCEpy2pl8XYf9PnwOEDPbPo1oW4J6cxfkeOjz
-+5fODyTFwWLLWImsjBas8/wyBaBpb8MEc2lLxYzGvGRHkDCXIGCGYr8JVOZiAEqK
-jszFBGWW9fsIrvNbVKlCFTpjxwafcFwNO/I3ikELh9xAfsmiyLobpOOEGWSQlooR
-GxBqYe/KpKSCadvN0WK0zU8tp6xOQ9me92HqdRwtz7ytub2MGZppMzWlIOfXTJsk
-+MqdEYsVFyuS4loIBEOBz3w4JBXBecvNiJK+1T9KLHeBtW+BcI833GMOfum7BY31
-gwXgI1eYn6WpMj3gVNqXe26vRA/vd22BIZhZoS+FeVWah28ohk2zlrT9EAe/pDR9
-9lk0DNpo6bfJqsCNkgVwSmCLGBnKFSp8tBhAjzX1IAkhwwMCAwEAAaOBwzCBwDAJ
-BgNVHRMEAjAAMB0GA1UdDgQWBBQWptHTiTmvxhaZfmpgr0Tp6Vf2LTBOBgNVHSME
-RzBFgBRIgW+vXHiEig6hzo7yIaaYXnsGs6EipCAwHjEcMBoGA1UEAwwTY25fVFpH
-RGtXbXNZN3BoRWRwaoIJALdz0i1x0KEyMBMGA1UdJQQMMAoGCCsGAQUFBwMBMAsG
-A1UdDwQEAwIFoDAiBgNVHREEGzAZghdzZXJ2ZXJfQURCdGtwMHlMNDZITFhQYjAN
-BgkqhkiG9w0BAQsFAAOCAYEApSyUmcopGQ6yGj8S27qjAMX7Ds/nxAIX3pCGLoaX
-VJQcBtZisIuQlr+ALa5/fJT2JmkbHOkyWMPaUsLl1cYJVyqbI2iAftYIfzQQDM/C
-PltTc/D6JngqaE0p2gXGgEPjVg44OBYm3MmvEzNRLwFYjMpSvngXbUrz8iSmRLyr
-imnmY+H+jHC2Or5h33fptLWlqtdXBXiuTmNu/USMoshekCLnlUn3PeIvGrPYekm4
-MGu+K340FmslqIw0/6pTP2Vd3gvNR7dX9+WE3jNBEzNLEZsBIDdeaWHfJoAlosIh
-VMKE2YAsJ2iDvwa6ZhN+qU4Llal6lqLxDY7t3yzmMiw/pHvRjXyXUoyrAGxjh9xy
-DArv9YRvRWFYO1MWiuX9YjflHQ0AtwpHL+j24N90zJdOGgIctW1GScj52sQVO7JN
-2BLESEaqHzsde2EiCNVGad5Pns4/MDMqIIDyxY+6YgGdrac5haTdl7PxtaDAQuIs
-+bd2FBJbzKqL8e7WiMj0D/RL
------END CERTIFICATE-----
-EOF107
- cat <<'EOF113'> /etc/openvpn/server.key
------BEGIN PRIVATE KEY-----
-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
-dr3Szfw/1BrXI2OgvFxke2i6hA==
------END PRIVATE KEY-----
-EOF113
- cat <<'EOF13'> /etc/openvpn/dh.pem
------BEGIN DH PARAMETERS-----
-MIICCAKCAgEA4n16aZpGsqucktU0QAkocQGie3E0rjbaanO+8HWea4Uf6XvKokA+
-iXZl/pPHg/ItVjkFZViWMzZ9Xa0/Y2JKVuYCnguC8xSdN+xlo2gQ+PwK1ExrB0lR
-PoCWa/KzJIQI5VWHNUDh0qkdmGgpxfAIKNZXzbxW3ktZi1oX0TI8vPFejbtWEGoE
-H4HDhF6376o2NvHPILEVNzmWp9hRpmU+luxFQaoDD5iDkrpL1zdGvBhmGilYQwRo
-0jt5uIm6N/S/jFvwMhn4QFKaDOppFwTwH+sH9/EiDH93xlmGv6B5SiI2aP1w1YKj
-ytDXm680EMzfYP1XYcd/6u+9xHI1BsJAWvcjOhPujAUy8krWe/+PjpYypLwx9gj7
-zuHxsyrGvt8xPyRJfNbRn5Bvw4T+7RMbHGUehdy40qORJ4+ahd/+MhW/RDgx1EBf
-njX9j2mSXEHW8AlEQlGaEDiUQqKZQmYDvkVMfjgl7c4HJxRSK/bl5UqLY6n1m744
-fHzoDeQYl57JKTpgz026Gs/XXiZptI9H+fEHjHHcKgEreOA7tDiiqgrNvkPsRB+L
-j2UJ0Ap3iVdPtCGii39p6i3B8jRnRiFcGoT+W15zjwEwD/tl699hZc1IMdeAod27
-n7VpX6UPkLnqGE3HWh8eDnFndCYS+OKoRtIQZoJkzJA/Lq3o1YCdjFMCAQI=
------END DH PARAMETERS-----
-EOF13
- cat <<'EOF103'> /etc/openvpn/crl.pem
------BEGIN X509 CRL-----
-MIIBsDCBmQIBATANBgkqhkiG9w0BAQsFADATMREwDwYDVQQDDAhSYWR6IFZQThcN
-MTkwODA4MDM1NDI1WhcNMjAwMjA0MDM1NDI1WqBSMFAwTgYDVR0jBEcwRYAUpZcJ
-dK9kVRcXepwjPkZbQahd+YKhF6QVMBMxETAPBgNVBAMMCFJhZHogVlBOghQHkI1U
-FC2+EYQoi9jXsAtjsYTrHzANBgkqhkiG9w0BAQsFAAOCAQEAauCvXzfFxGk1x1sz
-UKTjrG4A1QG3nD/5V9Zd2N0uClXGwHUi7wn4BDT7ckGtdNyl37SQ+WK+C73lUbz8
-u6Pj40k8/YOMD3IasInHYG74ZulVCg0KbXxCgi6TXl5/c1XT+sSSuO46XNpRWkV3
-lRhj31D3Uh5jbrCJ6bCyWU+nv/DA1QsFXXo2BfcMU7a6XoJ6n/zrogwzrXvPpYkh
-CuZEyGkEZO8Wd0KYGm7pT2nsFzmUqES2W5LLZkVtgYziKG7/5Lcw4u1OOd/R3Jqy
-NDJboL0lnAK6QLMspx3OThLdusI2Kn/cEQiSdhC9RExBibS83N2Fti+3lom0rjdX
-j+cNXw==
------END X509 CRL-----
-EOF103
-
- # Getting all dns inside resolv.conf then use as Default DNS for our openvpn server
- #grep -v '#' /etc/resolv.conf | grep 'nameserver' | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | while read -r line; do
-	#echo "push \"dhcp-option DNS $line\"" >> /etc/openvpn/server_tcp.conf
-#done
- #grep -v '#' /etc/resolv.conf | grep 'nameserver' | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | while read -r line; do
-	#echo "push \"dhcp-option DNS $line\"" >> /etc/openvpn/server_udp.conf
-#done
-
- # setting openvpn server port
- sed -i "s|MyOvpnPort1|$OpenVPN_Port1|g" /etc/openvpn/server_tcp.conf
- sed -i "s|MyOvpnPort2|$OpenVPN_Port2|g" /etc/openvpn/server_udp.conf
- 
- # Generating openvpn dh.pem file using openssl
- #openssl dhparam -out /etc/openvpn/dh.pem 1024
- 
- # Getting some OpenVPN plugins for unix authentication
- wget -qO /etc/openvpn/b.zip 'https://raw.githubusercontent.com/GakodArmy/teli/main/openvpn_plugin64'
- unzip -qq /etc/openvpn/b.zip -d /etc/openvpn
- rm -f /etc/openvpn/b.zip
- 
- # Some workaround for OpenVZ machines for "Startup error" openvpn service
- if [[ "$(hostnamectl | grep -i Virtualization | awk '{print $2}' | head -n1)" == 'openvz' ]]; then
- sed -i 's|LimitNPROC|#LimitNPROC|g' /lib/systemd/system/openvpn*
- systemctl daemon-reload
-fi
 
  # Allow IPv4 Forwarding
  echo 'net.ipv4.ip_forward=1' > /etc/sysctl.d/20-openvpn.conf && sysctl --system &> /dev/null && echo 1 > /proc/sys/net/ipv4/ip_forward
-
- # Iptables Rule for OpenVPN server
- PUBLIC_INET="$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)"
- IPCIDR='10.200.0.0/16'
- iptables -I FORWARD -s $IPCIDR -j ACCEPT
- iptables -t nat -A POSTROUTING -o $PUBLIC_INET -j MASQUERADE
- iptables -t nat -A POSTROUTING -s $IPCIDR -o $PUBLIC_INET -j MASQUERADE
  
  # Installing Firewalld
  apt install firewalld -y
@@ -753,17 +360,6 @@ fi
  # Enabling IPv4 Forwarding
  echo 1 > /proc/sys/net/ipv4/ip_forward
  
- # Starting OpenVPN server
- systemctl start openvpn@server_tcp
- systemctl start openvpn@server_udp
- systemctl enable openvpn@server_tcp
- systemctl enable openvpn@server_udp
- systemctl restart openvpn@server_tcp
- systemctl restart openvpn@server_udp
- 
- # Pulling OpenVPN no internet fixer script
- wget -qO /etc/openvpn/openvpn.bash "https://raw.githubusercontent.com/Bonveio/BonvScripts/master/openvpn.bash"
- chmod +x /etc/openvpn/openvpn.bash
 }
 
 function InsProxy(){
@@ -868,13 +464,16 @@ myNginxC
  # Creating our root directory for all of our .ovpn configs
  rm -rf /var/www/openvpn
  mkdir -p /var/www/openvpn
-# Now creating all of our OpenVPN Configs 
-cat <<EOF152> /var/www/openvpn/GTMConfig.ovpn
+#Create OpenVPN Config
+mkdir -p /home/vps/public_html
+ # Now creating all of our OpenVPN Configs 
+cat <<EOF152> /home/vps/public_html/tcp.ovpn
+# Credits to Gakod Memgganas
 client
 dev tun
-remote $IPADDR $OpenVPN_Port1 tcp
-http-proxy $IPADDR 8080
-http-proxy-retry
+setenv FRIENDLY_NAME "I'M MASTA GAKOD"
+remote $MYIP 443 tcp
+http-proxy $MYIP 8080
 resolv-retry infinite
 route-method exe
 nobind
@@ -895,7 +494,6 @@ sndbuf 100000
 rcvbuf 100000
 remote-cert-tls server
 key-direction 1
-
 <auth-user-pass>
 sam
 sam
@@ -904,22 +502,25 @@ sam
 $(cat /etc/openvpn/ca.crt)
 </ca>
 <cert>
-$(cat /etc/openvpn/server.crt)
+$(cat /etc/openvpn/client.crt)
 </cert>
 <key>
-$(cat /etc/openvpn/server.key)
+$(cat /etc/openvpn/client.key)
 </key>
 <tls-auth>
 $(cat /etc/openvpn/tls-auth.key)
 </tls-auth>
 EOF152
 
-cat <<EOF16> /var/www/openvpn/SunConfig.ovpn
-# Credits to GakodX
+cat <<EOF150> /home/vps/public_html/ssl.ovpn
+# Credits to Gakod Memgganas
 client
 dev tun
-proto udp
-remote $IPADDR $OpenVPN_Port2
+proto tcp
+setenv FRIENDLY_NAME "I'M MASTA GAKOD"
+remote 127.0.0.1 443
+route $MYIP 255.255.255.255 net_gateway
+http-proxy $MYIP 8080
 resolv-retry infinite
 route-method exe
 nobind
@@ -948,61 +549,79 @@ sam
 $(cat /etc/openvpn/ca.crt)
 </ca>
 <cert>
-$(cat /etc/openvpn/server.crt)
+$(cat /etc/openvpn/client.crt)
 </cert>
 <key>
-$(cat /etc/openvpn/server.key)
+$(cat /etc/openvpn/client.key)
+</key>
+<tls-auth>
+$(cat /etc/openvpn/tls-auth.key)
+</tls-auth>
+EOF150
+
+cat <<EOF16> /home/vps/public_html/udp.ovpn
+# Credits to Gakod Memgganas
+client
+dev tun
+proto udp
+setenv FRIENDLY_NAME "I'M MASTA GAKOD"
+remote $MYIP 1194
+resolv-retry infinite
+route-method exe
+nobind
+persist-key
+persist-tun
+comp-lzo
+cipher AES-256-CBC
+auth SHA256
+push "redirect-gateway def1 bypass-dhcp"
+verb 3
+push-peer-info
+ping 10
+ping-restart 60
+hand-window 70
+server-poll-timeout 4
+reneg-sec 2592000
+sndbuf 0
+rcvbuf 0
+remote-cert-tls server
+key-direction 1
+<auth-user-pass>
+sam
+sam
+</auth-user-pass>
+<ca>
+$(cat /etc/openvpn/ca.crt)
+</ca>
+<cert>
+$(cat /etc/openvpn/client.crt)
+</cert>
+<key>
+$(cat /etc/openvpn/client.key)
 </key>
 <tls-auth>
 $(cat /etc/openvpn/tls-auth.key)
 </tls-auth>
 EOF16
 
-cat <<EOF17> /var/www/openvpn/SunNoLoad.ovpn
-client
-proto tcp-client
-dev tun
-remote 127.0.0.1 443
-route $IPADDR 255.255.255.255 net_gateway 
-http-proxy $IPADDR 8080
-http-proxy-retry
-resolv-retry infinite
-route-method exe
-nobind
-persist-key
-persist-tun
-comp-lzo
-cipher AES-256-CBC
-auth SHA256
-push "redirect-gateway def1 bypass-dhcp"
-verb 3
-push-peer-info
-ping 10
-ping-restart 60
-hand-window 70
-server-poll-timeout 4
-reneg-sec 2592000
-sndbuf 100000
-rcvbuf 100000
-remote-cert-tls server
-key-direction 1
-<auth-user-pass>
-sam
-sam
-</auth-user-pass>
-<ca>
-$(cat /etc/openvpn/ca.crt)
-</ca>
-<cert>
-$(cat /etc/openvpn/server.crt)
-</cert>
-<key>
-$(cat /etc/openvpn/server.key)
-</key>
-<tls-auth>
-$(cat /etc/openvpn/tls-auth.key)
-</tls-auth>
-EOF17
+# Setting UFW
+apt-get install ufw
+ufw allow ssh
+ufw allow 443/tcp
+sed -i 's|DEFAULT_INPUT_POLICY="DROP"|DEFAULT_INPUT_POLICY="ACCEPT"|' /etc/default/ufw
+sed -i 's|DEFAULT_FORWARD_POLICY="DROP"|DEFAULT_FORWARD_POLICY="ACCEPT"|' /etc/default/ufw
+cat > /etc/ufw/before.rules <<-END
+# START OPENVPN RULES
+# NAT table rules
+*nat
+:POSTROUTING ACCEPT [0:0]
+# Allow traffic from OpenVPN client to eth0
+-A POSTROUTING -s 10.8.0.0/8 -o eth0 -j MASQUERADE
+COMMIT
+# END OPENVPN RULES
+END
+ufw status
+ufw disable
 
  # Creating OVPN download site index.html
 cat <<'mySiteOvpn' > /var/www/openvpn/index.html
