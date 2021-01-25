@@ -25,16 +25,16 @@ Stunnel_Port2='444' # through OpenSSH
 
 # OpenVPN Ports
 OpenVPN_TCP_Port='443'
-OpenVPN_UDP_Port='25222'
+OpenVPN_UDP_Port='1194'
 
 # Privoxy Ports
-Privoxy_Port1='3356'
+Privoxy_Port1='8118'
 Privoxy_Port2='8086'
 
 # Squid Ports
 Squid_Port1='3128'
 Squid_Port2='8080'
-Squid_Port3='80'
+Squid_Port3='8000'
 
 # OpenVPN Config Download Port
 OvpnDownload_Port='80' # Before changing this value, please read this document. It contains all unsafe ports for Google Chrome Browser, please read from line #23 to line #89: https://chromium.googlesource.com/chromium/src.git/+/refs/heads/master/net/base/port_util.cc
@@ -247,241 +247,259 @@ function InsOpenVPN(){
  # Creating server.conf, ca.crt, server.crt and server.key
  cat <<'myOpenVPNconf' > /etc/openvpn/server_tcp.conf
 # OpenVPN TCP
-port OVPNTCP
+port 443
 proto tcp
 dev tun
+dev-type tun
+sndbuf 100000
+rcvbuf 100000
 ca /etc/openvpn/ca.crt
 cert /etc/openvpn/server.crt
 key /etc/openvpn/server.key
-dh /etc/openvpn/dh2048.pem
-verify-client-cert none
-username-as-common-name
-key-direction 0
-plugin /etc/openvpn/plugins/openvpn-plugin-auth-pam.so login
-server 10.200.0.0 255.255.0.0
+dh /etc/openvpn/dh.pem
+crl-verify /etc/openvpn/crl.pem
+tls-auth /etc/openvpn/ta.key 0
+topology subnet
+server 10.9.0.0 255.255.255.0
 ifconfig-pool-persist ipp.txt
-push "route-method exe"
-push "route-delay 2"
+push "redirect-gateway def1 bypass-dhcp"
+push "dhcp-option DNS 8.8.8.8"
+push "dhcp-option DNS 8.8.4.4"
 keepalive 10 120
+cipher AES-256-CBC
+auth SHA256
 comp-lzo
 user nobody
 group nogroup
-persist-key
 persist-tun
 status openvpn-status.log
-log tcp.log
 verb 2
-ncp-disable
-cipher none
-auth none
-myOpenVPNconf
-
+mute 3
+plugin /etc/openvpn/openvpn-auth-pam.so /etc/pam.d/login
+verify-client-cert none
+username-as-common-name
+myOpenVPNconf1
 cat <<'myOpenVPNconf2' > /etc/openvpn/server_udp.conf
-# OpenVPN UDP
-port OVPNUDP
+# LODIxyrussScript
+
+port 1194
+dev tun
 proto udp
 dev tun
-ca /etc/openvpn/ca.crt
-cert /etc/openvpn/server.crt
-key /etc/openvpn/server.key
-dh /etc/openvpn/dh2048.pem
-verify-client-cert none
-username-as-common-name
-key-direction 0
-plugin /etc/openvpn/plugins/openvpn-plugin-auth-pam.so login
-server 10.201.0.0 255.255.0.0
-ifconfig-pool-persist ipp.txt
-push "route-method exe"
-push "route-delay 2"
-keepalive 10 120
-comp-lzo
 user nobody
 group nogroup
 persist-key
 persist-tun
-status openvpn-status.log
-log udp.log
-verb 2
-ncp-disable
-cipher none
-auth none
+keepalive 10 120
+topology subnet
+server 10.8.0.0 255.255.255.0
+ifconfig-pool-persist ipp.txt
+push "dhcp-option DNS 1.0.0.1"
+push "dhcp-option DNS 1.1.1.1"
+push "redirect-gateway def1 bypass-dhcp" 
+ca /etc/openvpn/ca.crt
+cert /etc/openvpn/server.crt
+key /etc/openvpn/server.key
+dh /etc/openvpn/dh.pem
+crl-verify /etc/openvpn/crl.pem
+tls-auth /etc/openvpn/ta.key 0
+auth SHA256
+cipher AES-128-CBC
+tls-server
+tls-version-min 1.2
+tls-cipher TLS-DHE-RSA-WITH-AES-128-GCM-SHA256
+status openvpn.log
+verb 3
+plugin /etc/openvpn/openvpn-auth-pam.so /etc/pam.d/login
+username-as-common-name
 myOpenVPNconf2
 
  cat <<'EOF7'> /etc/openvpn/ca.crt
 -----BEGIN CERTIFICATE-----
-MIIFDDCCA/SgAwIBAgIJAIxbDcvh6vPEMA0GCSqGSIb3DQEBCwUAMIG0MQswCQYD
-VQQGEwJQSDEPMA0GA1UECBMGVGFybGFjMRMwEQYDVQQHEwpDb25jZXBjaW9uMRMw
-EQYDVQQKEwpKb2huRm9yZFRWMRMwEQYDVQQLEwpKb2huRm9yZFRWMRIwEAYDVQQD
-EwlEZWJpYW5WUE4xHTAbBgNVBCkTFEpvaG4gRm9yZCBNYW5naWxpbWFuMSIwIAYJ
-KoZIhvcNAQkBFhNhZG1pbkBqb2huZm9yZHR2Lm1lMB4XDTE5MTEyNTA4MDUzMFoX
-DTI5MTEyMjA4MDUzMFowgbQxCzAJBgNVBAYTAlBIMQ8wDQYDVQQIEwZUYXJsYWMx
-EzARBgNVBAcTCkNvbmNlcGNpb24xEzARBgNVBAoTCkpvaG5Gb3JkVFYxEzARBgNV
-BAsTCkpvaG5Gb3JkVFYxEjAQBgNVBAMTCURlYmlhblZQTjEdMBsGA1UEKRMUSm9o
-biBGb3JkIE1hbmdpbGltYW4xIjAgBgkqhkiG9w0BCQEWE2FkbWluQGpvaG5mb3Jk
-dHYubWUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCf+WkN868YMiCl
-d3z1Tq2OeRNb6ljiRGzEi1qrIvj/gXq6o0QD0SD+Nf3QWJrrJYFi1GECq72PNFhy
-2jLFgZH0RRLOVZfG+jwZ9itxofweiwALvgMdz2e+mpQItMxKh1ZYkzNw+4zJ7zJV
-u0Tq7YGPaMFPkLNU3V454rDYCdI8GG/wPDoW5FMc3FogI8fwylQvTWyE0yxHMxH6
-FkISA5hOuSo6MO1FgAfDdNNwxa/MAbpHwJ+W6RBHv4lhE6bQePMCj/90pgt3NpxF
-i++qwpSRfOR6OuuyDr1c++z6qhjLB7YzDLzj+HXCyfsPWPj+gJ0+3ckhW4gf/nhR
-uB+BTd8fAgMBAAGjggEdMIIBGTAdBgNVHQ4EFgQULXGeDQBLXCPId0F3r/58FDCm
-jC4wgekGA1UdIwSB4TCB3oAULXGeDQBLXCPId0F3r/58FDCmjC6hgbqkgbcwgbQx
-CzAJBgNVBAYTAlBIMQ8wDQYDVQQIEwZUYXJsYWMxEzARBgNVBAcTCkNvbmNlcGNp
-b24xEzARBgNVBAoTCkpvaG5Gb3JkVFYxEzARBgNVBAsTCkpvaG5Gb3JkVFYxEjAQ
-BgNVBAMTCURlYmlhblZQTjEdMBsGA1UEKRMUSm9obiBGb3JkIE1hbmdpbGltYW4x
-IjAgBgkqhkiG9w0BCQEWE2FkbWluQGpvaG5mb3JkdHYubWWCCQCMWw3L4erzxDAM
-BgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQBZUpwZ+LQWAQI8VW3hdZVN
-WV+P12yYQ1UzyagtB3MqBR4aZhjk42NFBrwPZwpvWUXB0GB4DhBuvbVPtqnt5p4V
-sDtQ6vKYeDlE/KDGDc0oJDsgxo2wwIXy+y/14EDqidAVjtf1rk5MDAAEVvonHxkP
-861kzoIOZ0+D7sJDo3aZ8uNy8UznrRSzLDT63o28DkL3iLASyt1GHWu05wYmgzsg
-m+w+AWvN5rL65mzyn/Bipf0I9snVB4saCgfy7TCI/4slOcMCNc2e6oOwOLvFA+s8
-dZMt2qg62PEOj/LblYGD+qLn0xLRwqK0UWSmWobz5LXoxyssZLK2KiMkS41PHkfh
+MIIDKzCCAhOgAwIBAgIJAP8GMzx/MU1MMA0GCSqGSIb3DQEBCwUAMBMxETAPBgNV
+BAMTCENoYW5nZU1lMB4XDTE4MDUwNjEyMTU0MFoXDTI4MDUwMzEyMTU0MFowEzER
+MA8GA1UEAxMIQ2hhbmdlTWUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB
+AQDZMG0zKbAdPzblhslK88dJYToBV1aMxmCjHw51+W8z1rZBYD9c6/DZBPoLxtT/
+BlNolMAdukrXU6uXNoHcbyqxb5tIISxBJmzI4L1eD3323knhx28NoyQ+tUWy1GYL
+b1Y53/OAdedYE2Zus+HFyJzdZ2vNm+Y4C95tbWfeA2eixSU92M/gpY+onr9qbT/p
+ipf7OJ31NTQD7Jzlh8f9l0axx+8SoR9o+Iy9UZrWvhKPKTtWGUaKdSCjR7+coZsM
+Jrm7jfw9X0hfebOa4+ATZEvluKHh1DJZYRg2bMfkmt8ZoJEuns7IKzMZzKDGlcIq
+4DSIOzxySWx0gQhzlPnSQhhRAgMBAAGjgYEwfzAdBgNVHQ4EFgQUHw+YguqaY/wt
+mS3Rn0X2SL3GOtkwQwYDVR0jBDwwOoAUHw+YguqaY/wtmS3Rn0X2SL3GOtmhF6QV
+MBMxETAPBgNVBAMTCENoYW5nZU1lggkA/wYzPH8xTUwwDAYDVR0TBAUwAwEB/zAL
+BgNVHQ8EBAMCAQYwDQYJKoZIhvcNAQELBQADggEBAMSacdQtfZuGlJPppREHVWLU
+uQEOOR5Zx5+JKfm0mLIX3D1YwoXP2X01F9YntTDWlTTz4aHvn7XkBu6Wxl4F71dB
+BxSrmUDN/toDWBagujPS5lEablqXTyrn8pB5jXcHeU61sqGkMg9/T+AChtVXyKCW
+3C16igi4U5GF1siGpyLpLvBh6IV7d/eBWIrSDRmlsDwyrFulH7ug1OedNumwfHP/
+CMX9rK+OyIRZNO9nbkwSiFvZmRq7pCd0dT5yT6nt59DzyyDPwbF4qoGZC4Ki+hnq
+JdxqZ+1W048IZpY8MR73Ejg1Xj82iSdzujCtbT2lS3UwDJDQDMSXub8G0y6XA9E=
 -----END CERTIFICATE-----
 EOF7
  cat <<'EOF9'> /etc/openvpn/server.crt
 Certificate:
     Data:
         Version: 3 (0x2)
-        Serial Number: 1 (0x1)
+        Serial Number:
+            1b:3f:6f:da:75:60:5a:53:ec:da:fc:89:c8:5c:2d:80
     Signature Algorithm: sha256WithRSAEncryption
-        Issuer: C=MY, ST=JB, L=Concepcion, O=SigulaPunya, OU=SigulaPunya, CN=DebianVPN/name=si gula /emailAddress=huhu86977@gmail.com
+        Issuer: CN=ChangeMe
         Validity
-            Not Before: Nov 25 08:06:59 2019 GMT
-            Not After : Nov 22 08:06:59 2029 GMT
-        Subject: C=MY, ST=JB, L=Concepcion, O=SigulaPunya, OU=SigulaPunya, CN=DebianVPN/name=si gula /emailAddress=huhu86977@gmail.com
+            Not Before: May  6 12:16:42 2018 GMT
+            Not After : May  3 12:16:42 2028 GMT
+        Subject: CN=server
         Subject Public Key Info:
             Public Key Algorithm: rsaEncryption
                 Public-Key: (2048 bit)
                 Modulus:
-                    00:c6:6d:3d:64:58:08:e2:70:9b:a3:55:75:ec:5a:
-                    6e:9d:bc:7c:45:f5:64:c5:f6:23:2e:b0:1f:28:2e:
-                    cb:60:8d:71:73:3d:c4:e6:f7:e3:36:0b:ad:9d:87:
-                    f5:4b:2f:85:5f:d8:c9:88:d9:86:4a:52:ce:2b:39:
-                    c6:b9:83:e0:7e:ab:8e:1f:2f:11:cc:08:15:12:62:
-                    dd:8d:94:b1:79:3c:52:d9:cb:0a:6a:db:64:8b:ff:
-                    c7:41:5c:cc:f9:18:4f:74:1a:e7:c1:b4:b8:89:fd:
-                    56:5f:5c:65:c4:21:a8:08:98:3d:8e:35:44:b3:6f:
-                    93:b5:01:59:b4:35:23:99:00:79:fa:44:df:b3:4c:
-                    76:bf:3c:e4:f7:39:3e:50:e0:fe:85:8c:a0:e2:63:
-                    b1:ec:a3:32:cd:6b:9d:5a:0e:f6:66:92:ac:6f:15:
-                    5e:bb:3a:48:d9:3d:63:94:ff:9c:fb:d2:fe:5a:11:
-                    b5:1a:c1:6c:8a:9e:d3:29:8d:d6:ff:fc:9f:9f:a4:
-                    ad:9d:a0:ca:2b:6f:63:47:7f:7b:3c:98:bf:14:18:
-                    6c:36:38:7a:c3:5d:a9:5a:26:28:12:33:9d:17:1b:
-                    6f:2f:5d:33:e7:b5:8f:57:3a:3a:29:57:6a:0e:9e:
-                    84:7a:60:d9:9c:fb:c7:f3:f8:93:a7:cd:43:89:ec:
-                    3f:d3
+                    00:f1:06:d5:b1:fd:e3:ec:27:0e:fc:c4:ed:05:5d:
+                    0d:cf:a0:5e:9d:d8:ab:d1:84:7a:1a:ab:ec:09:74:
+                    68:90:4d:b1:70:77:8c:c3:08:62:25:63:ad:8d:d1:
+                    be:f8:86:11:55:b3:ce:dd:d7:f6:78:cf:73:2b:4c:
+                    0e:b7:2f:0e:78:6f:13:da:7a:25:f0:66:22:09:5f:
+                    1e:4d:91:3f:7f:8b:3f:b3:3b:3d:46:ef:61:11:a6:
+                    2f:92:a5:b6:9b:26:40:60:2e:8d:e9:a2:7d:97:d9:
+                    0d:17:05:68:5d:f9:92:c2:7e:c5:96:36:e8:ac:63:
+                    2b:58:6e:dd:7b:cb:c7:e8:a3:c8:e0:33:2c:63:74:
+                    f6:f4:e4:47:eb:5c:b2:cc:03:b7:83:65:d9:73:a4:
+                    7b:89:c0:f9:d0:9e:e6:1d:39:b4:b4:21:7f:0b:20:
+                    b4:f9:6f:61:9f:35:e3:ca:fe:44:db:24:12:b8:6e:
+                    dd:f3:ab:ed:36:d6:fe:4b:17:cb:9e:6a:a6:58:77:
+                    14:14:0c:18:76:77:be:74:62:f3:8a:ab:f1:a0:01:
+                    7d:87:75:30:28:ed:c9:86:73:c5:69:08:33:65:da:
+                    3e:2b:0c:38:37:09:40:da:d7:fb:32:86:80:b0:63:
+                    f8:f5:02:58:57:e6:f3:44:12:13:e6:dd:b1:a8:a6:
+                    29:7f
                 Exponent: 65537 (0x10001)
         X509v3 extensions:
-            X509v3 Basic Constraints:
+            X509v3 Basic Constraints: 
                 CA:FALSE
-            Netscape Cert Type:
-                SSL Server
-            Netscape Comment:
-                Easy-RSA Generated Server Certificate
-            X509v3 Subject Key Identifier:
-                50:31:04:C4:7A:47:C1:DA:46:CC:77:38:DE:1C:63:10:40:C3:80:22
-            X509v3 Authority Key Identifier:
-                keyid:2D:71:9E:0D:00:4B:5C:23:C8:77:41:77:AF:FE:7C:14:30:A6:8C:2E
-                DirName:/C=PH/ST=Tarlac/L=Concepcion/O=SigulaPunya/OU=SigulaPunya/CN=DebianVPN/name=si gula /emailAddress=huhu86977@gmail.com
-                serial:8C:5B:0D:CB:E1:EA:F3:C4
+            X509v3 Subject Key Identifier: 
+                0C:55:A9:EA:EB:15:D7:EC:36:12:7E:A0:76:F8:9E:FA:D1:F8:FE:4D
+            X509v3 Authority Key Identifier: 
+                keyid:1F:0F:98:82:EA:9A:63:FC:2D:99:2D:D1:9F:45:F6:48:BD:C6:3A:D9
+                DirName:/CN=ChangeMe
+                serial:FF:06:33:3C:7F:31:4D:4C
 
-            X509v3 Extended Key Usage:
+            X509v3 Extended Key Usage: 
                 TLS Web Server Authentication
-            X509v3 Key Usage:
+            X509v3 Key Usage: 
                 Digital Signature, Key Encipherment
-            X509v3 Subject Alternative Name:
+            X509v3 Subject Alternative Name: 
                 DNS:server
     Signature Algorithm: sha256WithRSAEncryption
-         87:59:21:fd:7d:41:c8:87:8f:ff:13:85:e9:ae:31:da:43:bc:
-         48:3b:32:41:ba:65:82:9e:76:25:cd:43:8b:fc:07:16:49:c3:
-         8d:bd:ad:bf:0e:f6:d3:53:35:de:f2:c6:a6:62:c2:79:e1:49:
-         a5:ba:55:cf:b9:e9:58:d8:e5:02:96:0a:2a:97:7d:82:85:0b:
-         38:b5:dc:0d:6b:bd:51:a6:f7:3f:71:94:90:c9:ad:51:69:15:
-         24:58:04:99:96:69:40:9d:a1:9c:1c:a3:34:be:b9:c2:86:61:
-         ab:18:03:9b:27:b1:9f:1d:a3:5e:29:47:16:6f:7e:55:62:93:
-         57:85:45:34:2c:cb:10:2c:da:f0:9a:ee:3d:b2:92:87:d4:7e:
-         1b:c7:66:22:e9:4c:a2:95:d0:df:32:1a:87:ce:8a:27:08:f2:
-         87:a9:e6:eb:16:37:71:35:37:4d:8c:0e:df:12:d3:e0:63:0a:
-         53:7d:c8:02:c5:34:c5:23:68:c3:ba:33:5b:ad:92:bd:e2:d0:
-         9d:bc:bd:bd:0d:64:50:0f:f4:bd:91:fc:10:e0:ec:01:e8:a1:
-         50:ed:79:bf:12:49:bc:a4:93:17:d6:71:ed:9e:99:f3:42:6d:
-         26:b3:2d:ac:32:62:98:71:d1:e4:83:6c:58:02:e6:49:b6:c9:
-         73:76:eb:8b
+         79:61:47:4e:ca:e3:8a:c0:7c:69:ba:8f:a1:fb:8f:34:47:ab:
+         7b:7f:d4:e4:84:38:3f:ca:b9:dc:7a:3f:fb:80:d9:24:5f:8e:
+         13:dd:e2:5e:82:76:8e:94:f4:5a:f8:b8:b5:59:f1:04:42:6b:
+         59:c2:eb:43:6a:c8:fb:35:7b:31:5a:70:e6:16:6a:0a:45:4d:
+         59:f5:a6:1a:09:94:b3:1c:b7:f8:18:a6:2b:43:86:be:72:7c:
+         e3:7d:ea:7e:45:7a:24:ed:83:5b:cd:a8:a4:8e:f1:10:07:8f:
+         85:77:5a:50:aa:ff:8e:65:83:66:09:d9:a6:d2:50:fe:62:02:
+         a6:93:70:1c:9c:45:35:d7:d9:a5:09:b0:69:38:17:0b:1b:9f:
+         22:e2:85:2f:1f:a7:74:d0:db:37:8e:d2:61:bf:cc:da:5a:78:
+         b1:7d:2e:9e:10:92:94:4c:dd:cb:a2:74:c8:49:1b:fa:01:62:
+         e8:1e:71:e1:0b:fc:77:ab:24:52:82:91:98:76:63:2f:b2:98:
+         d1:73:a2:08:22:0b:bd:60:2b:cf:cc:4e:91:47:d9:b1:c1:a6:
+         a6:5e:ec:b6:1b:3d:29:57:09:1b:66:bf:e5:62:0c:74:05:6e:
+         85:fd:eb:7a:a0:b8:44:15:65:81:e9:82:29:d6:a4:b3:46:5b:
+         a0:2d:e3:7c
 -----BEGIN CERTIFICATE-----
-MIIFfzCCBGegAwIBAgIBATANBgkqhkiG9w0BAQsFADCBtDELMAkGA1UEBhMCUEgx
-DzANBgNVBAgTBlRhcmxhYzETMBEGA1UEBxMKQ29uY2VwY2lvbjETMBEGA1UEChMK
-Sm9obkZvcmRUVjETMBEGA1UECxMKSm9obkZvcmRUVjESMBAGA1UEAxMJRGViaWFu
-VlBOMR0wGwYDVQQpExRKb2huIEZvcmQgTWFuZ2lsaW1hbjEiMCAGCSqGSIb3DQEJ
-ARYTYWRtaW5Aam9obmZvcmR0di5tZTAeFw0xOTExMjUwODA2NTlaFw0yOTExMjIw
-ODA2NTlaMIG0MQswCQYDVQQGEwJQSDEPMA0GA1UECBMGVGFybGFjMRMwEQYDVQQH
-EwpDb25jZXBjaW9uMRMwEQYDVQQKEwpKb2huRm9yZFRWMRMwEQYDVQQLEwpKb2hu
-Rm9yZFRWMRIwEAYDVQQDEwlEZWJpYW5WUE4xHTAbBgNVBCkTFEpvaG4gRm9yZCBN
-YW5naWxpbWFuMSIwIAYJKoZIhvcNAQkBFhNhZG1pbkBqb2huZm9yZHR2Lm1lMIIB
-IjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxm09ZFgI4nCbo1V17Fpunbx8
-RfVkxfYjLrAfKC7LYI1xcz3E5vfjNgutnYf1Sy+FX9jJiNmGSlLOKznGuYPgfquO
-Hy8RzAgVEmLdjZSxeTxS2csKattki//HQVzM+RhPdBrnwbS4if1WX1xlxCGoCJg9
-jjVEs2+TtQFZtDUjmQB5+kTfs0x2vzzk9zk+UOD+hYyg4mOx7KMyzWudWg72ZpKs
-bxVeuzpI2T1jlP+c+9L+WhG1GsFsip7TKY3W//yfn6StnaDKK29jR397PJi/FBhs
-Njh6w12pWiYoEjOdFxtvL10z57WPVzo6KVdqDp6EemDZnPvH8/iTp81Diew/0wID
-AQABo4IBmDCCAZQwCQYDVR0TBAIwADARBglghkgBhvhCAQEEBAMCBkAwNAYJYIZI
-AYb4QgENBCcWJUVhc3ktUlNBIEdlbmVyYXRlZCBTZXJ2ZXIgQ2VydGlmaWNhdGUw
-HQYDVR0OBBYEFFAxBMR6R8HaRsx3ON4cYxBAw4AiMIHpBgNVHSMEgeEwgd6AFC1x
-ng0AS1wjyHdBd6/+fBQwpowuoYG6pIG3MIG0MQswCQYDVQQGEwJQSDEPMA0GA1UE
-CBMGVGFybGFjMRMwEQYDVQQHEwpDb25jZXBjaW9uMRMwEQYDVQQKEwpKb2huRm9y
-ZFRWMRMwEQYDVQQLEwpKb2huRm9yZFRWMRIwEAYDVQQDEwlEZWJpYW5WUE4xHTAb
-BgNVBCkTFEpvaG4gRm9yZCBNYW5naWxpbWFuMSIwIAYJKoZIhvcNAQkBFhNhZG1p
-bkBqb2huZm9yZHR2Lm1lggkAjFsNy+Hq88QwEwYDVR0lBAwwCgYIKwYBBQUHAwEw
-CwYDVR0PBAQDAgWgMBEGA1UdEQQKMAiCBnNlcnZlcjANBgkqhkiG9w0BAQsFAAOC
-AQEAh1kh/X1ByIeP/xOF6a4x2kO8SDsyQbplgp52Jc1Di/wHFknDjb2tvw7201M1
-3vLGpmLCeeFJpbpVz7npWNjlApYKKpd9goULOLXcDWu9Uab3P3GUkMmtUWkVJFgE
-mZZpQJ2hnByjNL65woZhqxgDmyexnx2jXilHFm9+VWKTV4VFNCzLECza8JruPbKS
-h9R+G8dmIulMopXQ3zIah86KJwjyh6nm6xY3cTU3TYwO3xLT4GMKU33IAsU0xSNo
-w7ozW62SveLQnby9vQ1kUA/0vZH8EODsAeihUO15vxJJvKSTF9Zx7Z6Z80JtJrMt
-rDJimHHR5INsWALmSbbJc3briw==
+MIIDVjCCAj6gAwIBAgIQGz9v2nVgWlPs2vyJyFwtgDANBgkqhkiG9w0BAQsFADAT
+MREwDwYDVQQDEwhDaGFuZ2VNZTAeFw0xODA1MDYxMjE2NDJaFw0yODA1MDMxMjE2
+NDJaMBExDzANBgNVBAMTBnNlcnZlcjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCC
+AQoCggEBAPEG1bH94+wnDvzE7QVdDc+gXp3Yq9GEehqr7Al0aJBNsXB3jMMIYiVj
+rY3RvviGEVWzzt3X9njPcytMDrcvDnhvE9p6JfBmIglfHk2RP3+LP7M7PUbvYRGm
+L5KltpsmQGAujemifZfZDRcFaF35ksJ+xZY26KxjK1hu3XvLx+ijyOAzLGN09vTk
+R+tcsswDt4Nl2XOke4nA+dCe5h05tLQhfwsgtPlvYZ8148r+RNskErhu3fOr7TbW
+/ksXy55qplh3FBQMGHZ3vnRi84qr8aABfYd1MCjtyYZzxWkIM2XaPisMODcJQNrX
++zKGgLBj+PUCWFfm80QSE+bdsaimKX8CAwEAAaOBpzCBpDAJBgNVHRMEAjAAMB0G
+A1UdDgQWBBQMVanq6xXX7DYSfqB2+J760fj+TTBDBgNVHSMEPDA6gBQfD5iC6ppj
+/C2ZLdGfRfZIvcY62aEXpBUwEzERMA8GA1UEAxMIQ2hhbmdlTWWCCQD/BjM8fzFN
+TDATBgNVHSUEDDAKBggrBgEFBQcDATALBgNVHQ8EBAMCBaAwEQYDVR0RBAowCIIG
+c2VydmVyMA0GCSqGSIb3DQEBCwUAA4IBAQB5YUdOyuOKwHxpuo+h+480R6t7f9Tk
+hDg/yrncej/7gNkkX44T3eJegnaOlPRa+Li1WfEEQmtZwutDasj7NXsxWnDmFmoK
+RU1Z9aYaCZSzHLf4GKYrQ4a+cnzjfep+RXok7YNbzaikjvEQB4+Fd1pQqv+OZYNm
+Cdmm0lD+YgKmk3AcnEU119mlCbBpOBcLG58i4oUvH6d00Ns3jtJhv8zaWnixfS6e
+EJKUTN3LonTISRv6AWLoHnHhC/x3qyRSgpGYdmMvspjRc6IIIgu9YCvPzE6RR9mx
+waamXuy2Gz0pVwkbZr/lYgx0BW6F/et6oLhEFWWB6YIp1qSzRlugLeN8
 -----END CERTIFICATE-----
 EOF9
  cat <<'EOF10'> /etc/openvpn/server.key
 -----BEGIN PRIVATE KEY-----
-MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDGbT1kWAjicJuj
-VXXsWm6dvHxF9WTF9iMusB8oLstgjXFzPcTm9+M2C62dh/VLL4Vf2MmI2YZKUs4r
-Oca5g+B+q44fLxHMCBUSYt2NlLF5PFLZywpq22SL/8dBXMz5GE90GufBtLiJ/VZf
-XGXEIagImD2ONUSzb5O1AVm0NSOZAHn6RN+zTHa/POT3OT5Q4P6FjKDiY7HsozLN
-a51aDvZmkqxvFV67OkjZPWOU/5z70v5aEbUawWyKntMpjdb//J+fpK2doMorb2NH
-f3s8mL8UGGw2OHrDXalaJigSM50XG28vXTPntY9XOjopV2oOnoR6YNmc+8fz+JOn
-zUOJ7D/TAgMBAAECggEBALidRIRKwCFmIfhKeAfqb4aEqp8wXI0un7c9mA970i9I
-CijtbHh0ZEqRfPvXViqY0R/HBGM195LJDhb7j2BlSYaxOO7cjVNmpaxQnc+va5vf
-uzn1hgC7lQYIeSvgGrkbnDjrG3uHGDcSpLzeq7RamAs/Ee5wszW7dxLuabaXxkH/
-owRXl6wvwD1WNGZsWJe8eP6GtBePm9+Ls5VLN0DPWyuJCFxhN/VpvvphECFt7EPF
-qY+ysAFqfSYkCyH7OklnLIx1jQ04iLbZ4HI+S9QH+w1261fDgCXAmf1kgXkgLaM6
-4wK+e93JRyqw87NZZIKN3ooq35n6wAUaS2erIYQFjrkCgYEA5c6qeNORIuq4F1jP
-JS9aaXEjaAKIgw20qTyZfhQv6AhkJ7GASgWSdBIIfZQo1JG4EsXwqQ/0x9EwDOVu
-glTYMT3tMi0zrzMklYS1G8iQElywAfTro/8sngfimvkQeRljoNdlrzO4+knUXmV8
-DymPDH6UGlhj2FwCFN+obhT1f48CgYEA3QrzBK+YRu6iqeMuifwXlcbUS/A+dBPJ
-qoYDzM6Zc0LYRTZSqhEHC8XkcQp/18LUxXFSrZXP2lcKmkqg4pgeAxALRLJW2pfz
-yAm1Hah5JXlvTjX4HnMTFL4fvB0oGZXsAimPNa/wUZvTSPYJRziZdEwVubW3AAxE
-THN3qxXoGX0CgYAWeSxwnnf+CygvmE7BmyzjTN4iiMTi1A9L0ZJNIxpAPbnVq+UY
-2AynbzAHX9rSVuHCbDsJvXa5p7pkOHejJTrzLdQpaQQ56O119cFkUyvLr+bCejol
-EopBdhHyB9NVlGcKzqWyCYPYbinnhVMphG3p0eMX5Hb3LKBDfE/TXBdZ/wKBgEwe
-3iup8M3Ulk3c/4TjPJgGvctc85Tzz4oa1qosJ6oKxgGnwHXyoTOLtay8CeSaor1P
-1kITCl5NhUg3FQqTihpR5x+ELubeV0R3G1kYUIf4Nr1/Vm/d/x8wjisw+0M8Xucr
-urapXSAtgmho2i8drbLgFMc8bcXlc4vEY9yWEbTdAoGAMa6KTb0U9M47mpJb23zu
-WiO8mFqSPYAnhHmXOiBOPlCoVpRbPquk3Xq32g9KU97jPNrH4X2HKgYpboMTWYOJ
-kR3Y5UeFF1xurA/RXUEREcP1zg6Uei5aj7S4Sp7CVfIQCOpJ8S/I4CZdAcvwY+pI
-ZTC1+KZJbFyPwFcrIylEeBc=
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDxBtWx/ePsJw78
+xO0FXQ3PoF6d2KvRhHoaq+wJdGiQTbFwd4zDCGIlY62N0b74hhFVs87d1/Z4z3Mr
+TA63Lw54bxPaeiXwZiIJXx5NkT9/iz+zOz1G72ERpi+SpbabJkBgLo3pon2X2Q0X
+BWhd+ZLCfsWWNuisYytYbt17y8foo8jgMyxjdPb05EfrXLLMA7eDZdlzpHuJwPnQ
+nuYdObS0IX8LILT5b2GfNePK/kTbJBK4bt3zq+021v5LF8ueaqZYdxQUDBh2d750
+YvOKq/GgAX2HdTAo7cmGc8VpCDNl2j4rDDg3CUDa1/syhoCwY/j1AlhX5vNEEhPm
+3bGopil/AgMBAAECggEATOxVfzz8ZP4CNoHS84dDRSR1jgL8sx2IqsJ7znisdoGV
+Q8Oj1Qrz5+LsHPr36/E9zxBX0U1/iAcNRqA7ghMulxk8SNn7CcJO0pbc4PyeO2KB
+rf4WDHGRlURoonDo2pNWsFurRwlo8/F9z/8V1Ag24oP7I3nawEnWJ58aaMwcvQ4K
+F7ZPP3X+4k3rP4KnlejwQinbgdwKp7DW2rXL+wepX/3TNnJVCafUSsY71c8Gjv8U
+OPEr9pIRJI8QAOMkLSB6OuPAW1w986QpE6TvyUP5kYmZIYMhZbXWER1MmxyCDMGV
+UsuI4Kdh6Dk9q99VhU2AJMc8FiQpqPaGHRXmdTS3wQKBgQD8AqX+iLcBEVACAba6
+hBEWXuUNJ9g351VtC1osEV0C1lcWgDHIls5XwY/C5GGuPxorFoY9XKzg09Eueo5R
+NQkJImc8GYRj5fS5K7ULWquu9FN86vIbQwjezkN+mz6z9Vn3yhHHYkHbYMoGCJMQ
+sC/4jNAnQixZS/+1I4UNSifvSQKBgQD016vv80Ev/4Y0Bo8eHlPItiBhOp6ICByM
+xq4mFgAvJ0k3+SrOFKD3OuHsRU9UGaTqIQjtpweSDukqJGl+6Zf3Dm5K2CeJSYvT
+AbcFJL5gqcfRxQu8a82RFzkqc8oFqoU+P0jsi4jxpcjB17CLT7jz/ilFVid8YoDt
+k9tp7K0qhwKBgQDOAkQ77Prc7pAe89OyaR+mz/Aibv37xSo6N9uAxrjoBtuuUyFf
+PphzeJHS2etYC9GSg5k9NDNGnyETA7CvhdFbHDqUEK//Eg6aCLa5D2flX2mYZl+A
+Fa58pNTb/ICnj9v6Cb+65AG+GkNL51qBe+XbIxFN5nRmkw/3vY+Yq5Q1sQKBgQDw
+1mjROZVIsm9/I2iJ9sjxaH0HRtMD+f6jVxecbQ23VEyIW3cIiXAgYHI0p6S1lBgN
+GXuf0Sn4OOSPyIthBEOwCCjjRCX3vDlm0IwH6jG+AaOFKu81Y1EsxAw+PvFci3RP
+W47O5x5InIuSaSjGkB/dGYfdJTbn+jjZ+RPd6KoZZwKBgE9ptBSZ30iIIU6R3S+p
+PZ3+U+AxkosNT4N7OEp1VXQy6Ri5FbrcVTFE74ySRHV3FAB5TS5Hfxv7CchLHnfW
+4PU+h0zbEgRz+dMkFoezCrXk0/77NLZUItBR3s1btyW+j8mx10KVv83vkuAoep9D
+C6H4CuZhRVY/RKZj8X6GpOkK
 -----END PRIVATE KEY-----
 EOF10
- cat <<'EOF13'> /etc/openvpn/dh2048.pem
+ cat <<'EOF16'> /etc/openvpn/ta.key
+#
+# 2048 bit OpenVPN static key
+#
+-----BEGIN OpenVPN Static key V1-----
+bdcfd0846a6e313b81166314b6b3837c
+b4860c3d84ac2f17fcf26a7ca090974c
+97ec8395c67b98090560e82120b16eb0
+d3f237fb7d5033985db907a3e3fce5ab
+ee5bad86b77a36166f80b594aa3b53db
+87863f3250e931d37a1b66703d7691b7
+88c4e0e648fa278da3c883247daa3c38
+379a26c262ed37a6ee1ec7ba826e703b
+e9f4a494f89b253499e0b64f20250157
+cb182c932bdd916de5aef07ff6e5a4ee
+b3eb7aec6a058785ff771d2c18432790
+195eae67a96f383be5931c1356734a6b
+f4c619cb97094fd337f971b340bad41b
+bb774d630c2eb24fd0057785d505afee
+6a2749f79febf7bdb1e5a6c62f250c55
+2f2448e5be01abb287151073d53f3996
+-----END OpenVPN Static key V1-----
+EOF16
+ cat <<'EOF19'> /etc/openvpn/dh.pem
+-----BEGIN X509 CRL-----
+MIIBsDCBmQIBATANBgkqhkiG9w0BAQsFADATMREwDwYDVQQDDAhSYWR6IFZQThcN
+MTkwODA4MDM1NDI1WhcNMjAwMjA0MDM1NDI1WqBSMFAwTgYDVR0jBEcwRYAUpZcJ
+dK9kVRcXepwjPkZbQahd+YKhF6QVMBMxETAPBgNVBAMMCFJhZHogVlBOghQHkI1U
+FC2+EYQoi9jXsAtjsYTrHzANBgkqhkiG9w0BAQsFAAOCAQEAauCvXzfFxGk1x1sz
+UKTjrG4A1QG3nD/5V9Zd2N0uClXGwHUi7wn4BDT7ckGtdNyl37SQ+WK+C73lUbz8
+u6Pj40k8/YOMD3IasInHYG74ZulVCg0KbXxCgi6TXl5/c1XT+sSSuO46XNpRWkV3
+lRhj31D3Uh5jbrCJ6bCyWU+nv/DA1QsFXXo2BfcMU7a6XoJ6n/zrogwzrXvPpYkh
+CuZEyGkEZO8Wd0KYGm7pT2nsFzmUqES2W5LLZkVtgYziKG7/5Lcw4u1OOd/R3Jqy
+NDJboL0lnAK6QLMspx3OThLdusI2Kn/cEQiSdhC9RExBibS83N2Fti+3lom0rjdX
+j+cNXw==
+-----END X509 CRL-----
+EOF19
+ cat <<'EOF13'> /etc/openvpn/dh.pem
 -----BEGIN DH PARAMETERS-----
-MIIBCAKCAQEAlrn8QcDrwXzqWCI7NMhPJVgEjdSxvyHw3EDVN8JrVfMegnvZA0VZ
-St3hduXTzlT7ceUGIxTJpM8RE6d3f1mMPnZJ4hBxJzzjrwMgSCupJrQDjSAIWGLZ
-elcmJS6WOAibpxzFIiPB6pRjoLaJF8b/J+YnO0bLUt1senWkg9ql8mU74VM1aG3A
-jOPztpLqYIRwla11bqAl4UcFLBI+PXAcPJsAIfzZ3DMn7aOa3Or6UjSmVQ8jGY/8
-1F0T67NgB8U7FrOVNimRlWfSJ//FiJkP0PScHVX2NQ0Cgwdo+wekjoFN5xbPxicc
-LxNkdRPpCACgzdo1M77xVsurtfcxsz+RswIBAg==
+MIIBCAKCAQEA2w2E4Ppnc89jXP4tBsMizxtRPmpwJkYoBpF9EVN5QO/ws96/x8Te
+hAg2mD6ZzoPFm4KhjD9YrD+M3c05j2kCLMnPc81i+EQ6M+xG6hzbPl5D8upe3W3/
+RoYadS85yIEJPs+SFToO3tXZlCklbU9+MVm8FaWohC32j4O3dNTDvKIQtSWjU0WC
+m1OVQAgdv4TZtcF5/FSGFbbcGY1arrrX0JK4+0ThW9XktTL9LPCNM/0UqSAqSB89
+LvFFlL47ek5JPMh76ulEBxWco2FHbnSsIWd12rYMGRn7G/EqbR1pQi+3UNMQpAIz
+5JnupCKu4GFS6KU5q1WKg0q1IBvhNroRwwIBAg==
 -----END DH PARAMETERS-----
 EOF13
-
  # Getting all dns inside resolv.conf then use as Default DNS for our openvpn server
  grep -v '#' /etc/resolv.conf | grep 'nameserver' | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | while read -r line; do
 	echo "push \"dhcp-option DNS $line\"" >> /etc/openvpn/server_tcp.conf
@@ -559,12 +577,11 @@ EOFipt
 
 }
 function InsProxy(){
-
  # Removing Duplicate privoxy config
  rm -rf /etc/privoxy/config*
  
  # Creating Privoxy server config using cat eof tricks
- cat <<'privoxy' > /etc/privoxy/config
+ cat <<'myPrivoxy' > /etc/privoxy/config
 # My Privoxy Server Config
 user-manual /usr/share/doc/privoxy/user-manual
 confdir /etc/privoxy
@@ -716,254 +733,141 @@ myNginxC
 
  # Now creating all of our OpenVPN Configs 
 
-cat <<EOF15> /var/www/openvpn/gtmsnswnp.ovpn90
-# Thanks for using this script, Enjoy Highspeed OpenVPN Service
+# Now creating all of our OpenVPN Configs 
+cat <<EOF152> /var/www/openvpn/GTMConfig.ovpn
 client
 dev tun
-proto tcp
-setenv FRIENDLY_NAME "Debian VPN WNP"
-remote $IPADDR $OpenVPN_TCP_Port
-nobind
-persist-key
-persist-tun
-comp-lzo
-keepalive 10 120
-tls-client
-remote-cert-tls server
-verb 2
-auth-user-pass
-cipher none
-auth none
-auth-nocache
-auth-retry interact
-connect-retry 0 1
-nice -20
-reneg-sec 0
-redirect-gateway def1
-setenv CLIENT_CERT 0
-dhcp-option DNS 1.1.1.1
-dhcp-option DNS 1.0.0.1
-http-proxy $IPADDR $Privoxy_Port1
-http-proxy-option VERSION 1.1
-http-proxy-option CUSTOM-HEADER ""
-http-proxy-option CUSTOM-HEADER "GET https://storage.googleapis.com HTTP/1.1"
-http-proxy-option CUSTOM-HEADER Host storage.googleapis.com
-http-proxy-option CUSTOM-HEADER X-Forward-Host storage.googleapis.com
-http-proxy-option CUSTOM-HEADER X-Forwarded-For storage.googleapis.com
-http-proxy-option CUSTOM-HEADER Referrer storage.googleapis.com
-
-<ca>
-$(cat /etc/openvpn/ca.crt)
-</ca>
-EOF15
-
-cat <<EOF16> /var/www/openvpn/sun-tutcp.ovpn
-# Thanks for using this script, Enjoy Highspeed OpenVPN Service
-client
-dev tun
-proto tcp
-setenv FRIENDLY_NAME "Debian VPN SUN"
-remote $IPADDR $OpenVPN_TCP_Port
-remote-cert-tls server
-connect-retry infinite
+remote $IPADDR $OpenVPN_Port1 tcp
+http-proxy $IPADDR 8080
+http-proxy-retry
 resolv-retry infinite
+route-method exe
 nobind
 persist-key
 persist-tun
-auth-user-pass
-auth none
-auth-nocache
-cipher none
 comp-lzo
-redirect-gateway def1
-setenv CLIENT_CERT 0
-reneg-sec 0
-verb 1
-http-proxy $IPADDR $Squid_Port1
-http-proxy-option CUSTOM-HEADER Host www.viber.com.edgekey.net
-http-proxy-option CUSTOM-HEADER X-Online-Host www.viber.com.edgekey.net
-http-proxy-option CUSTOM-HEADER X-Forwarded-For www.viber.com.edgekey.net
+cipher AES-256-CBC
+auth SHA256
+push "redirect-gateway def1 bypass-dhcp"
+verb 3
+push-peer-info
+ping 10
+ping-restart 60
+hand-window 70
+server-poll-timeout 4
+reneg-sec 2592000
+sndbuf 100000
+rcvbuf 100000
+remote-cert-tls server
+key-direction 1
 
+<auth-user-pass>
+sam
+sam
+</auth-user-pass>
 <ca>
 $(cat /etc/openvpn/ca.crt)
 </ca>
-EOF16
+<cert>
+$(cat /etc/openvpn/client.crt)
+</cert>
+<key>
+$(cat /etc/openvpn/client.key)
+</key>
+<tls-auth>
+$(cat /etc/openvpn/tls-auth.key)
+</tls-auth>
+EOF152
 
-cat <<EOF162> /var/www/openvpn/sun-tuudp.ovpn
-# Thanks for using this script, Enjoy Highspeed OpenVPN Service
+cat <<EOF16> /var/www/openvpn/SunConfig.ovpn
+# Credits to GakodX
 client
 dev tun
 proto udp
-setenv FRIENDLY_NAME "Debian VPN SUN"
-remote $IPADDR $OpenVPN_UDP_Port
-remote-cert-tls server
+remote $IPADDR $OpenVPN_Port2
 resolv-retry infinite
-float
-fast-io
-nobind
-persist-key
-persist-remote-ip
-persist-tun
-auth-user-pass
-auth none
-auth-nocache
-cipher none
-comp-lzo
-redirect-gateway def1
-setenv CLIENT_CERT 0
-reneg-sec 0
-verb 1
-
-<ca>
-$(cat /etc/openvpn/ca.crt)
-</ca>
-EOF162
-
-cat <<EOF17> /var/www/openvpn/sun-noload.ovpn
-# Thanks for using this script, Enjoy Highspeed OpenVPN Service
-client
-dev tun
-proto tcp-client
-setenv FRIENDLY_NAME "Debian VPN WNP"
-remote $IPADDR $OpenVPN_TCP_Port
-remote-cert-tls server
-bind
-float
-mute-replay-warnings
-connect-retry-max 9999
-redirect-gateway def1
-connect-retry 0 1
-resolv-retry infinite
-setenv CLIENT_CERT 0
-persist-tun
-persist-key
-auth-user-pass
-auth none
-auth-nocache
-auth-retry interact
-cipher none
-comp-lzo
-reneg-sec 0
-verb 0
-nice -20
-<ca>
-$(cat /etc/openvpn/ca.crt)
-</ca>
-EOF17
-
-cat <<EOF152> /var/www/openvpn/gtmwnp.ovpn
-# t.me/sigula
-# Thanks for using this script, Enjoy Highspeed OpenVPN Service
-client
-dev tun
-proto tcp-client
-setenv FRIENDLY_NAME "Debian VPN WNP"
-remote $IPADDR $OpenVPN_TCP_Port
+route-method exe
 nobind
 persist-key
 persist-tun
 comp-lzo
-keepalive 10 120
-tls-client
-remote-cert-tls server
-verb 2
-auth-user-pass
-cipher none
-auth none
-auth-nocache
-auth-retry interact
-connect-retry 0 1
-nice -20
-reneg-sec 0
-redirect-gateway def1
-setenv CLIENT_CERT 0
-dhcp-option DNS 1.1.1.1
-dhcp-option DNS 1.0.0.1
-http-proxy $IPADDR $Privoxy_Port1
-http-proxy-option VERSION 1.1
-http-proxy-option CUSTOM-HEADER Host www.googleapis.com
-http-proxy-option CUSTOM-HEADER X-Forwarded-For www.googleapis.com
-
-<ca>
-$(cat /etc/openvpn/ca.crt)
-</ca>
-EOF152
-
-cat <<EOF1152> /var/www/openvpn/gtmsns.ovpn
-# Thanks for using this script, Enjoy Highspeed OpenVPN Service
-client
-dev tun
-proto tcp-client
-setenv FRIENDLY_NAME "Debian VPN SNS"
-remote $IPADDR $OpenVPN_TCP_Port
-nobind
-persist-key
-persist-tun
-comp-lzo
-keepalive 10 120
-tls-client
-remote-cert-tls server
+cipher AES-256-CBC
+auth SHA256
+push "redirect-gateway def1 bypass-dhcp"
 verb 3
-auth-user-pass
-cipher none
-auth none
-auth-nocache
-auth-retry interact
-connect-retry 0 1
-nice -20
-reneg-sec 0
-redirect-gateway def1
-setenv CLIENT_CERT 0
-dhcp-option DNS 1.1.1.1
-dhcp-option DNS 1.0.0.1
-http-proxy $IPADDR $Privoxy_Port1
-http-proxy-option CUSTOM-HEADER CONNECT HTTP/1.0
-http-proxy-option CUSTOM-HEADER Host shopee.ph
-http-proxy-option CUSTOM-HEADER X-Online-Host shopee.ph
-http-proxy-option CUSTOM-HEADER X-Forward-Host shopee.ph
-http-proxy-option CUSTOM-HEADER Connection Keep-Alive
-
+push-peer-info
+ping 10
+ping-restart 60
+hand-window 70
+server-poll-timeout 4
+reneg-sec 2592000
+sndbuf 100000
+rcvbuf 100000
+remote-cert-tls server
+key-direction 1
+<auth-user-pass>
+sam
+sam
+</auth-user-pass>
 <ca>
 $(cat /etc/openvpn/ca.crt)
 </ca>
-EOF1152
+<cert>
+$(cat /etc/openvpn/client.crt)
+</cert>
+<key>
+$(cat /etc/openvpn/client.key)
+</key>
+<tls-auth>
+$(cat /etc/openvpn/tls-auth.key)
+</tls-auth>
+EOF16
 
-cat <<EOF1632> /var/www/openvpn/suntu-dns.ovpn
-# Thanks for using this script, Enjoy Highspeed OpenVPN Service
+cat <<EOF17> /var/www/openvpn/SunNoLoad.ovpn
 client
-dev tun
 proto tcp-client
-setenv FRIENDLY_NAME "Debian VPN SUN"
-remote $IPADDR $OpenVPN_TCP_Port
+dev tun
+remote 127.0.0.1 443
+route $IPADDR 255.255.255.255 net_gateway 
+http-proxy $IPADDR 8080
+http-proxy-retry
+resolv-retry infinite
+route-method exe
 nobind
 persist-key
 persist-tun
 comp-lzo
-keepalive 10 120
-tls-client
+cipher AES-256-CBC
+auth SHA256
+push "redirect-gateway def1 bypass-dhcp"
+verb 3
+push-peer-info
+ping 10
+ping-restart 60
+hand-window 70
+server-poll-timeout 4
+reneg-sec 2592000
+sndbuf 100000
+rcvbuf 100000
 remote-cert-tls server
-verb 2
-auth-user-pass
-cipher none
-auth none
-auth-nocache
-auth-retry interact
-connect-retry 0 1
-nice -20
-reneg-sec 0
-redirect-gateway def1
-setenv CLIENT_CERT 0
-dhcp-option DNS 1.1.1.1
-dhcp-option DNS 1.0.0.1
-http-proxy $IPADDR 3356
-http-proxy-option CUSTOM-HEADER ""
-http-proxy-option CUSTOM-HEADER "POST https://viber.com HTTP/1.1"
-http-proxy-option CUSTOM-HEADER "X-Forwarded-For: viber.com"
-
+key-direction 1
+<auth-user-pass>
+sam
+sam
+</auth-user-pass>
 <ca>
 $(cat /etc/openvpn/ca.crt)
 </ca>
-EOF1632
+<cert>
+$(cat /etc/openvpn/client.crt)
+</cert>
+<key>
+$(cat /etc/openvpn/client.key)
+</key>
+<tls-auth>
+$(cat /etc/openvpn/tls-auth.key)
+</tls-auth>
+EOF17
 
  # Creating OVPN download site index.html
 cat <<'mySiteOvpn' > /var/www/openvpn/index.html
@@ -972,7 +876,7 @@ cat <<'mySiteOvpn' > /var/www/openvpn/index.html
 
 <!-- Simple OVPN Download site by Sigula -->
 
-<head><meta charset="utf-8" /><title>Sigula OVPN Config Download</title><meta name="description" content="MyScriptName Server" /><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" /><meta name="theme-color" content="#000000" /><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"><link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.8.3/css/mdb.min.css" rel="stylesheet"></head><body><div class="container justify-content-center" style="margin-top:9em;margin-bottom:5em;"><div class="col-md"><div class="view"><img src="https://openvpn.net/wp-content/uploads/openvpn.jpg" class="card-img-top"><div class="mask rgba-white-slight"></div></div><div class="card"><div class="card-body"><h5 class="card-title">Config List</h5><br /><ul class="list-group"><li class="list-group-item justify-content-between align-items-center" style="margin-bottom:1em;"><p>For Sun <span class="badge light-blue darken-4">Android/iOS/PC/Modem</span><br /><small> UDP Server For TU/CTC/CTU Promos</small></p><a class="btn btn-outline-success waves-effect btn-sm" href="http://IP-ADDRESS:NGINXPORT/sun-tuudp.ovpn" style="float:right;"><i class="fa fa-download"></i> Download</a></li><li class="list-group-item justify-content-between align-items-center" style="margin-bottom:1em;"><p>For Sun <span class="badge light-blue darken-4">Android/iOS/PC/Modem</span><br /><small> TCP+Proxy Server For TU/CTC/CTU Promos</small></p><a class="btn btn-outline-success waves-effect btn-sm" href="http://IP-ADDRESS:NGINXPORT/sun-tuudp.ovpn" style="float:right;"><i class="fa fa-download"></i> Download</a></li><li class="list-group-item justify-content-between align-items-center" style="margin-bottom:1em;"><p>For Globe/TM <span class="badge light-blue darken-4">Android/iOS/PC/Modem</span><br /><small> For EasySURF/GoSURF/GoSAKTO Promos with WNP,SNS,FB and IG freebies</small></p><a class="btn btn-outline-success waves-effect btn-sm" href="http://IP-ADDRESS:NGINXPORT/gtmwnp.ovpn" style="float:right;"><i class="fa fa-download"></i> Download</a></li><li class="list-group-item justify-content-between align-items-center" style="margin-bottom:1em;"><p>For Sun <span class="badge light-blue darken-4">Modem</span><br /><small> Without Promo/Noload (Reconnecting Server, Use Low-latency VPS for fast reconnectivity)</small></p><a class="btn btn-outline-success waves-effect btn-sm" href="http://IP-ADDRESS:NGINXPORT/sun-noload.ovpn" style="float:right;"><i class="fa fa-download"></i> Download</a></li></ul></div></div></div></div></body></html>
+<head><meta charset="utf-8" /><title>MyScriptName OVPN Config Download</title><meta name="description" content="MyScriptName Server" /><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" /><meta name="theme-color" content="#000000" /><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"><link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.8.3/css/mdb.min.css" rel="stylesheet"></head><body><div class="container justify-content-center" style="margin-top:9em;margin-bottom:5em;"><div class="col-md"><div class="view"><img src="https://openvpn.net/wp-content/uploads/openvpn.jpg" class="card-img-top"><div class="mask rgba-white-slight"></div></div><div class="card"><div class="card-body"><h5 class="card-title">Config List</h5><br /><ul class="list-group"><li class="list-group-item justify-content-between align-items-center" style="margin-bottom:1em;"><p>For Globe/TM <span class="badge light-blue darken-4">Android/iOS/PC/Modem</span><br /><small> For EZ/GS Promo with WNP freebies</small></p><a class="btn btn-outline-success waves-effect btn-sm" href="http://IP-ADDRESS:NGINXPORT/GTMConfig.ovpn" style="float:right;"><i class="fa fa-download"></i> Download</a></li><li class="list-group-item justify-content-between align-items-center" style="margin-bottom:1em;"><p>For Sun <span class="badge light-blue darken-4">Android/iOS/PC/Modem</span><br /><small> For TU UDP Promos</small></p><a class="btn btn-outline-success waves-effect btn-sm" href="http://IP-ADDRESS:NGINXPORT/SunConfig.ovpn" style="float:right;"><i class="fa fa-download"></i> Download</a></li><li class="list-group-item justify-content-between align-items-center" style="margin-bottom:1em;"><p>For Sun <span class="badge light-blue darken-4">Android/iOS/PC/Modem</span><br /><small> Trinet GIGASTORIES Promos</small></p><a class="btn btn-outline-success waves-effect btn-sm" href="http://IP-ADDRESS:NGINXPORT/GStories.ovpn" style="float:right;"><i class="fa fa-download"></i> Download</a></li></ul></div></div></div></div></body></html>
 mySiteOvpn
  
  # Setting template's correct name,IP address and nginx Port
@@ -1083,7 +987,7 @@ function ScriptMessage(){
  echo -e " [\e[1;32m$MyScriptName VPS Installer\e[0m]"
  echo -e ""
  echo -e " t.me/sigula"
- echo -e " [PAYPAL] huhu86977@gmail.com"
+ echo -e " [PAYPAL] gakod@gmail.com"
  echo -e ""
 }
 
