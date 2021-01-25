@@ -133,16 +133,6 @@ server {
 }
 myNginxC
 
- # Setting our nginx config port for .ovpn download site
- sed -i "s|myNginx|$OvpnDownload_Port|g" /etc/nginx/conf.d/bonveio-ovpn-config.conf
-
- # Removing Default nginx page(port 80)
- rm -rf /etc/nginx/sites-*
-
- # Creating our root directory for all of our .ovpn configs
- rm -rf /var/www/openvpn
- mkdir -p /var/www/openvpn
-
 # Creating server.conf, ca.crt, server.crt and server.key
  cat <<'myOpenVPNconf1' > /etc/openvpn/server_tcp.conf
 # LODIxyrussScript
@@ -523,6 +513,16 @@ jrZFH4tMHWZ+mBTRA/76xsbBGWtkxND932g1vAc281EHv9+4iyW1SdvUTJNzZObh
 6GJJ6ESQE6h3vJJpVeoFCg==
 -----END X509 CRL-----
 EOF103
+
+ # Setting our nginx config port for .ovpn download site
+ sed -i "s|myNginx|$OvpnDownload_Port|g" /etc/nginx/conf.d/bonveio-ovpn-config.conf
+
+ # Removing Default nginx page(port 80)
+ rm -rf /etc/nginx/sites-*
+
+ # Creating our root directory for all of our .ovpn configs
+ rm -rf /var/www/openvpn
+ mkdir -p /var/www/openvpn
 
  # Now creating all of our OpenVPN Configs 
 cat <<EOF152> /var/www/openvpn/GTMConfig.ovpn
