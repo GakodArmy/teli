@@ -511,7 +511,7 @@ qO8aagoqh/68K9GFXljsl3/iCSa964HIEREtW09Qz1w3dotEgp2w8bsDa+OwWrLy
 2MMweASzTmZcri4PA/5C0HYb
 -----END PRIVATE KEY-----
 EOF10
- cat <<'EOF18'> /etc/openvpn/ta.key
+ cat <<'EOF18'> /etc/openvpn/tls-auth.key
 #
 # 2048 bit OpenVPN static key
 #
