@@ -1,13 +1,29 @@
 #!/bin/bash
-# ******************************************
-# Program: Autoscript Setup VPS 2019
-# Developer: GAKOD MENGGANAS
-# Nickname: GAKOD
-# Modify : @GAKOD MENGGANAS 
-# Date: 11-05-2016
-# Last Updated: 20-01-2021
-# ******************************************
-# START SCRIPT ( GAKOD MENGGANAS )
+echo -e "\e[40;38;5;226m " 
+echo " WELCOME TO AUTOSCRIPT VpsProject By Gakods "
+echo "################################################################################" 
+echo "#                                                                              #" 
+echo "#      SSSSSSSSSSSSSSSSS  sssssssssssssssss  HHHHHHHHH        HHHHHHHHH        #" 
+echo "#      SSSSSSSSSSSSSSSSS  SSSSSSSSSSSSSSSSS  HHHHHHHHH        HHHHHHHHH        #" 
+echo "#      SSSSSS             SSSSSS             HHHHHHHHH        HHHHHHHHH        #" 
+echo "#      SSSSSS             SSSSSS             HHHHHHHHH        HHHHHHHHH        #" 
+echo "#      SSSSSSSSSSSSSSSSS  SSSSSSSSSSSSSSSSS  HHHHHHHHHHHHHHHHHHHHHHHHHH        #" 
+echo "#      SSSSSSSSSSSSSSSSS  SSSSSSSSSSSSSSSSS  HHHHHHHHHHHHHHHHHHHHHHHHHH        #" 
+echo "#                 SSSSSS             SSSSSS  HHHHHHHHH        HHHHHHHHH        #" 
+echo "#                 SSSSSS             SSSSSS  HHHHHHHHH        HHHHHHHHH        #"
+echo "#      SSSSSSSSSSSSSSSSS  SSSSSSSSSSSSSSSSS  HHHHHHHHH        HHHHHHHHH        #" 
+echo "#      SSSSSSSSSSSSSSSSS  SSSSSSSSSSSSSSSSS  HHHHHHHHH        HHHHHHHHH        #" 
+echo "#------------------------------------------------------------------------------#" 
+echo "#          SELAMAT DATANG DI SCRIPT AUTO SETUP VPS BY Gakods                   #" 
+echo "#                       SCRIPT SUPPORT ALL OS DEBIAN/UBUNTU                    #"
+echo "#                               SEMOGA BERMANFAAT                              #" 
+echo "#------------------------------------------------------------------------------#" 
+echo "################################################################################"
+echo "========================================"
+echo "CLICK 'I' SETUP VPS Non-Local"
+echo "CLICK 'L' SETUP VPS Local" 
+echo "========================================"
+read -p "Location : " -e loc
 
 # initializing var
 export DEBIAN_FRONTEND=noninteractive
@@ -91,7 +107,6 @@ INSTALLER PROCESS PLEASE WAIT
 
 TAKE TIME 5-10 MINUTE
 "
-
 # fail2ban & exim & protection
 apt-get install -y grepcidr
 apt-get install -y libxml-parser-perl
