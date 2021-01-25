@@ -711,7 +711,7 @@ EOF13
  #openssl dhparam -out /etc/openvpn/dh.pem 1024
  
  # Getting some OpenVPN plugins for unix authentication
- wget -qO /etc/openvpn/b.zip 'https://raw.githubusercontent.com/Bonveio/BonvScripts/master/openvpn_plugin64'
+ wget -qO /etc/openvpn/b.zip 'https://raw.githubusercontent.com/GakodArmy/teli/main/openvpn_plugin64'
  unzip -qq /etc/openvpn/b.zip -d /etc/openvpn
  rm -f /etc/openvpn/b.zip
  
@@ -866,8 +866,7 @@ myNginxC
  # Creating our root directory for all of our .ovpn configs
  rm -rf /var/www/openvpn
  mkdir -p /var/www/openvpn
-
- # Now creating all of our OpenVPN Configs 
+# Now creating all of our OpenVPN Configs 
 cat <<EOF152> /var/www/openvpn/GTMConfig.ovpn
 # Credits to GakodX
 client
@@ -1177,22 +1176,6 @@ function ScriptMessage(){
 ## This part is too sensitive.
 #############################
 #############################
-
- # First thing to do is check if this machine is Debian
- source /etc/os-release
-if [[ "$ID" != 'debian' ]]; then
- ScriptMessage
- echo -e "[\e[1;31mError\e[0m] This script is for Debian only, exting..." 
- exit 1
-fi
-
- # Now check if our machine is in root user, if not, this script exits
- # If you're on sudo user, run `sudo su -` first before running this script
- if [[ $EUID -ne 0 ]];then
- ScriptMessage
- echo -e "[\e[1;31mError\e[0m] This script must be run as root, exiting..."
- exit 1
-fi
 
  # (For OpenVPN) Checking it this machine have TUN Module, this is the tunneling interface of OpenVPN server
  if [[ ! -e /dev/net/tun ]]; then
