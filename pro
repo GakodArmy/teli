@@ -448,12 +448,14 @@ sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
 cd
 clear
 # Install BadVPN
-apt-get -y install cmake make gcc
-wget https://raw.githubusercontent.com/GegeEmbrie/autosshvpn/master/file/badvpn-1.999.127.tar.bz2
-tar xf badvpn-1.999.127.tar.bz2
+# apt-get -y install cmake make gcc
+# wget https://raw.githubusercontent.com/GegeEmbrie/autosshvpn/master/file/badvpn-1.999.127.tar.bz2
+# tar xf badvpn-1.999.127.tar.bz2
+wget https://github.com/ambrop72/badvpn/archive/1.999.130.tar.gz
+tar xvzf 1.999.130.tar.gz
 mkdir badvpn-build
 cd badvpn-build
-cmake ~/badvpn-1.999.127 -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1
+cmake ~/badvpn-1.999.130 -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1
 make install
 screen badvpn-udpgw --listen-addr 127.0.0.1:7300 > /dev/null &
 cd
