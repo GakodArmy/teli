@@ -266,6 +266,8 @@ plugin /etc/openvpn/openvpn-auth-pam.so /etc/pam.d/login
 username-as-common-name
 myOpenVPNconf2
 
+#Create OpenVPN Config
+mkdir -p /home/vps/public_html
  # Now creating all of our OpenVPN Configs 
 cat <<EOF152> /home/vps/public_html/tcp.ovpn
 # Credits to GakodX
@@ -477,7 +479,6 @@ cd
 chown -R www-data:www-data /home/vps/public_html
 /etc/init.d/nginx restart
 /etc/init.d/openvpn restart
-/etc/init.d/cron restart
 /etc/init.d/ssh restart
 /etc/init.d/dropbear restart
 /etc/init.d/fail2ban restart
