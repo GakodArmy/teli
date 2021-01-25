@@ -1,6 +1,6 @@
 #!/bin/bash
 # Debian 9 and 10 VPS Installer
-# Script by Bonveio Abitona
+# Script by Gakods
 # 
 # Illegal selling and redistribution of this script is strictly prohibited
 # Please respect author's Property
@@ -819,7 +819,8 @@ http_port 0.0.0.0:$Proxy_Port1
 http_port 0.0.0.0:$Proxy_Port2
 http_port 0.0.0.0:$Proxy_Port3
 http_port 0.0.0.0:$Proxy_Port4
-http_access deny all
+acl all src 0.0.0.0/0
+http_access allow all
 forwarded_for off
 via off
 request_header_access Host allow all
