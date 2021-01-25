@@ -159,7 +159,8 @@ http_port 8080
 http_port 3128
 http_port 8000
 http_port 8888
-http_access allow  all
+acl all src 0.0.0.0/0
+http_access allow all
 access_log /var/log/squid/access.log
 visible_hostname TD-LTE/FDD-LTE(nb110.cn)
 cache_mgr Welcome_to_use_OpenVPN
