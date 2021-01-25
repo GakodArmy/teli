@@ -271,9 +271,10 @@ myOpenVPNconf2
 mkdir -p /home/vps/public_html
  # Now creating all of our OpenVPN Configs 
 cat <<EOF152> /home/vps/public_html/tcp.ovpn
-# Credits to GakodX
+# Credits to Gakod Memgganas
 client
 dev tun
+setenv FRIENDLY_NAME "I'M MASTA GAKOD"
 remote $MYIP 443 tcp
 http-proxy $MYIP 8080
 resolv-retry infinite
@@ -315,10 +316,11 @@ $(cat /etc/openvpn/tls-auth.key)
 EOF152
 
 cat <<EOF150> /home/vps/public_html/ssl.ovpn
-# Credits to GakodX
+# Credits to Gakod Memgganas
 client
 dev tun
 proto tcp
+setenv FRIENDLY_NAME "I'M MASTA GAKOD"
 remote 127.0.0.1 443
 route $MYIP 255.255.255.255 net_gateway
 http-proxy $MYIP 8080
@@ -361,10 +363,11 @@ $(cat /etc/openvpn/tls-auth.key)
 EOF150
 
 cat <<EOF16> /home/vps/public_html/udp.ovpn
-# Credits to GakodX
+# Credits to Gakod Memgganas
 client
 dev tun
 proto udp
+setenv FRIENDLY_NAME "I'M MASTA GAKOD"
 remote $MYIP 1194
 resolv-retry infinite
 route-method exe
