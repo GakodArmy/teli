@@ -252,7 +252,7 @@ comp-lzo
 verb 3
 mute 20
 EOF
-
+sed -i $MYIP2 /etc/openvpn/client.ovpn;
 echo '' >> /etc/openvpn/client.ovpn
 echo '<ca>' >> /etc/openvpn/client.ovpn
 cat /etc/openvpn/easy-rsa/keys/ca.crt >> /etc/openvpn/client.ovpn
@@ -263,6 +263,7 @@ echo '</cert>' >> /etc/openvpn/client.ovpn
 echo '<key>' >> /etc/openvpn/client.ovpn
 cat /etc/openvpn/easy-rsa/keys/server.key >> /etc/openvpn/client.ovpn
 echo '</key>' >> /etc/openvpn/client.ovpn
+sed -i $MYIP2 /etc/openvpn/client.ovpn;
 echo "DONE"
 /etc/init.d/openvpn restart
 
