@@ -272,6 +272,7 @@ crl-verify /etc/openvpn/crl.pem
 ca /etc/openvpn/ca.crt
 cert /etc/openvpn/server.crt
 key /etc/openvpn/server.key
+tls-auth /etc/openvpn/ta.key 0
 dh /etc/openvpn/dh.pem
 topology subnet
 server 10.9.0.0 255.255.255.0
@@ -315,6 +316,7 @@ crl-verify /etc/openvpn/crl.pem
 ca /etc/openvpn/ca.crt
 cert /etc/openvpn/server.crt
 key /etc/openvpn/server.key
+tls-auth /etc/openvpn/ta.key 0
 dh /etc/openvpn/dh.pem
 auth SHA256
 cipher AES-128-CBC
@@ -346,8 +348,6 @@ PzQhA3bm1btGNXbzs3YqV0YW6piQSIf3qowi1Cei7pzrOER1f/uUdnFNR8fz1LcI
 2cbo+kJOXkUqVGzcCRwQdbH/B035RWYpAKVnhejM4fXusRebpY/gRiTgfD2aSNo3
 mgWEki0oC6rCydBB3nb45gw4NgkSKg3WzZ+072QukntDvJgBrjUeuMgCNon7BXQ=
 -----END CERTIFICATE-----
-</ca>
-<cert>
 EOF7
  cat <<'EOF9'> /etc/openvpn/server.crt
 Certificate:
@@ -433,8 +433,6 @@ lghBiYLCGi1IF8or/pTX5T+Fo/u2NFtbbNbrs2r8wcPk/OnJRlD7+3msjmyefl3n
 Cx5RjpJxDWcP8aAzrcGrIg4ezLwA8di1qKxoMTVF8kqqdMj2/rCPXR17w+v4hkaA
 Kc0CvKULnAs=
 -----END CERTIFICATE-----
-</cert>
-<key>
 EOF9
  cat <<'EOF10'> /etc/openvpn/server.key
 -----BEGIN PRIVATE KEY-----
@@ -465,8 +463,6 @@ CvZMJAkk8OSVB4jZHMbYuimwb2betTDu/j0AKJup38ufS0mdcWf3/WZSYpNtyiQM
 YzLAYlCHMYB1n2O0ACOGPzbrRoxtVODwRd/tHkymFaZ8TgEy8knI3nopwPb6ssfR
 8L68mZITUm3nw3In+K9Z2axPX3Y=
 -----END PRIVATE KEY-----
-</key>
-<tls-auth>
 EOF10
  cat <<'EOF18'> /etc/openvpn/ta.key
 #
