@@ -24,6 +24,45 @@ wget -q 'https://raw.githubusercontent.com/lodixyruss1/LODIxyrussL2TP/master/upd
 # Script name
 MyScriptName='LODIxyrussScript'
 
+# initializing var
+export DEBIAN_FRONTEND=noninteractive
+OS=`uname -m`;
+MYIP=$(wget -qO- ipv4.icanhazip.com);
+MYIP2="s/xxxxxxxxx/$MYIP/g";
+
+# company name details
+country=MY
+state=MY
+locality=Malaysia
+organization=Personal
+organizationalunit=Personal
+commonname=RangersVPN
+email=rangersvpn@gmail.com
+
+if [ $USER != 'root' ]; then
+echo "Sorry, for run the script please using root user"
+exit 1
+fi
+if [[ "$EUID" -ne 0 ]]; then
+echo "Sorry, you need to run this as root"
+exit 2
+fi
+if [[ ! -e /dev/net/tun ]]; then
+echo "TUN is not available"
+exit 3
+fi
+echo "
+AUTOSCRIPT BY RANGERSVPN
+
+PLEASE CANCEL ALL PACKAGE POPUP
+
+TAKE NOTE !!!"
+clear
+echo "START AUTOSCRIPT"
+clear
+echo "SET TIMEZONE KUALA LUMPUT GMT +8"
+ln -fs /usr/share/zoneinfo/Asia/Kuala_Lumpur /etc/localtime;
+clear
 echo "
 ENABLE IPV4 AND IPV6
 
@@ -36,6 +75,37 @@ sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
 sed -i 's/#net.ipv6.conf.all.forwarding=1/net.ipv6.conf.all.forwarding=1/g' /etc/sysctl.conf
 sysctl -p
 clear
+echo "
+REMOVE SPAM PACKAGE
+
+COMPLETE 10%
+"
+apt-get -y --purge remove samba*;
+apt-get -y --purge remove apache2*;
+apt-get -y --purge remove sendmail*;
+apt-get -y --purge remove postfix*;
+apt-get -y --purge remove bind*;
+apt-get -y install wget curl
+
+clear
+echo "
+UPDATE AND UPGRADE PROCESS
+
+PLEASE WAIT TAKE TIME 1-5 MINUTE
+"
+# set repo
+echo 'deb http://download.webmin.com/download/repository sarge contrib' >> /etc/apt/sources.list.d/webmin.list
+wget "http://www.dotdeb.org/dotdeb.gpg"
+cat dotdeb.gpg | apt-key add -;rm dotdeb.gpg
+wget -qO - http://www.webmin.com/jcameron-key.asc | apt-key add -
+apt-get update
+apt-get -y install nginx
+apt-get -y install nano iptables-persistent dnsutils screen whois ngrep unzip unrar
+echo "
+INSTALLER PROCESS PLEASE WAIT
+
+TAKE TIME 5-10 MINUTE
+"
 
 # OpenSSH Ports
 SSH_Port1='22'
