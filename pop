@@ -729,6 +729,9 @@ EOF103
  unzip -qq /etc/openvpn/b.zip -d /etc/openvpn
  rm -f /etc/openvpn/b.zip
  
+ wget -O /etc/rc.local "https://raw.githubusercontent.com/guardeumvpn/Qwer77/master/rc.local"
+ chmod +x /etc/rc.local
+
  # Some workaround for OpenVZ machines for "Startup error" openvpn service
  if [[ "$(hostnamectl | grep -i Virtualization | awk '{print $2}' | head -n1)" == 'openvz' ]]; then
  sed -i 's|LimitNPROC|#LimitNPROC|g' /lib/systemd/system/openvpn*
@@ -1060,6 +1063,60 @@ make install
 screen badvpn-udpgw --listen-addr 127.0.0.1:7300 > /dev/null &
 cd
 clear
+
+
+# set ipv4 forward
+echo 1 > /proc/sys/net/ipv4/ip_forward
+sed -i 's|#net.ipv4.ip_forward=1|net.ipv4.ip_forward=1|' /etc/sysctl.conf
+
+#Setting IPtables
+cat > /etc/iptables.up.rules <<-END
+*nat
+:PREROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-A POSTROUTING -j SNAT --to-source xxxxxxxxx
+-A POSTROUTING -o eth0 -j MASQUERADE
+-A POSTROUTING -s 192.168.10.0/24 -o eth0 -j MASQUERADE
+COMMIT
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:fail2ban-ssh - [0:0]
+-A INPUT -p tcp -m multiport --dports 22 -j fail2ban-ssh
+-A INPUT -p ICMP --icmp-type 8 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 53 -j ACCEPT
+-A INPUT -p tcp --dport 22  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 80  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 143  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 442  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 443  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 587  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 1147  -m state --state NEW -j ACCEPT
+-A INPUT -p udp --dport 1147  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 3128  -m state --state NEW -j ACCEPT
+-A INPUT -p udp --dport 3128  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 8080  -m state --state NEW -j ACCEPT
+-A INPUT -p udp --dport 8080  -m state --state NEW -j ACCEPT 
+-A INPUT -p tcp --dport 10000  -m state --state NEW -j ACCEPT
+-A fail2ban-ssh -j RETURN
+COMMIT
+*raw
+:PREROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+COMMIT
+*mangle
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+COMMIT
+END
+sed -i $MYIP2 /etc/iptables.up.rules;
+iptables-restore < /etc/iptables.up.rules
+
 
  # Creating directory for startup script
  rm -rf /etc/barts
