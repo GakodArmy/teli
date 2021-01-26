@@ -134,9 +134,8 @@ sed -i 's/listen = \/var\/run\/php7.0-fpm.sock/listen = 127.0.0.1:9000/g' /etc/p
 service php7.0-fpm restart
 
  # Creating server.conf, ca.crt, server.crt and server.key
- cat <<'myOpenVPNconf1' > /etc/openvpn/servertcp.conf
+cat > /etc/openvpn/tcp.conf <<-END
 # GakodScript
-
 port 443
 proto tcp
 dev tun
@@ -167,11 +166,10 @@ verb 2
 mute 3
 plugin /etc/openvpn/openvpn-auth-pam.so /etc/pam.d/login
 username-as-common-name
-myOpenVPNconf1
+END
 
-cat <<'myOpenVPNconf2' > /etc/openvpn/serverudp.conf
+cat > /etc/openvpn/udp.conf <<-END
 # GakodScript
-
 port 1194
 proto udp
 dev tun
@@ -201,7 +199,7 @@ status openvpn.log
 verb 3
 plugin /etc/openvpn/openvpn-auth-pam.so /etc/pam.d/login
 username-as-common-name
-myOpenVPNconf2
+END
  cat <<'EOF7'> /etc/openvpn/ca.crt
 -----BEGIN CERTIFICATE-----
 MIIGKDCCBBCgAwIBAgIJAKFO3vqQ8q6BMA0GCSqGSIb3DQEBCwUAMGYxCzAJBgNV
@@ -577,8 +575,11 @@ chmod +x /etc/rc.local
 
 #Create OpenVPN Config
 mkdir -p /home/vps/public_html
- # Now creating all of our OpenVPN Configs 
-cat <<EOF152> /home/vps/public_html/tcp.ovpn
+
+
+# Now creating all of our OpenVPN Configs 
+cd /etc/openvpn
+cat > /etc/openvpn/tcp.ovpn <<-END
 # Credits to Gakod Memgganas
 client
 dev tun
@@ -608,22 +609,23 @@ key-direction 1
 <auth-user-pass>
 sam
 sam
-</auth-user-pass>
-<ca>
-$(cat /etc/openvpn/ca.crt)
-</ca>
-<cert>
-$(cat /etc/openvpn/client.crt)
-</cert>
-<key>
-$(cat /etc/openvpn/client.key)
-</key>
-<tls-auth>
-$(cat /etc/openvpn/tls-auth.key)
-</tls-auth>
-EOF152
+END
+sed -i $MYIP2 /etc/openvpn/tcp.ovpn
+echo '<ca>' >> /etc/openvpn/tcp.ovpn
+cat /etc/openvpn/ca.crt >> /etc/openvpn/tcp.ovpn
+echo '</ca>' >> /etc/openvpn/tcp.ovpn
+echo '<cert>' >> /etc/openvpn/tcp.ovpn
+cat /etc/openvpn/server.crt >> /etc/openvpn/tcp.ovpn
+echo '</cert>' >> /etc/openvpn/tcp.ovpn
+echo '<key>' >> /etc/openvpn/tcp.ovpn
+cat /etc/openvpn/server.key >> /etc/openvpn/tcp.ovpn
+echo '</key>' >> /etc/openvpn/tcp.ovpn
+echo '<tls-auth>' >> /etc/openvpn/tcp.ovpn
+cat /etc/openvpn/ta.key >> /etc/openvpn/tcp.ovpn
+echo '</tls-auth>' >> /etc/openvpn/tcp.ovpn
+cp /etc/openvpn/tcp.ovpn /home/vps/public_html/tcp.ovpn
 
-cat <<EOF150> /home/vps/public_html/ssl.ovpn
+cat > /etc/openvpn/ssl.ovpn <<-END
 # Credits to Gakod Memgganas
 client
 dev tun
@@ -656,21 +658,23 @@ key-direction 1
 sam
 sam
 </auth-user-pass>
-<ca>
-$(cat /etc/openvpn/ca.crt)
-</ca>
-<cert>
-$(cat /etc/openvpn/client.crt)
-</cert>
-<key>
-$(cat /etc/openvpn/client.key)
-</key>
-<tls-auth>
-$(cat /etc/openvpn/tls-auth.key)
-</tls-auth>
-EOF150
+END
+sed -i $MYIP2 /etc/openvpn/ssl.ovpn
+echo '<ca>' >> /etc/openvpn/ssl.ovpn
+cat /etc/openvpn/ca.crt >> /etc/openvpn/tcp.ovpn
+echo '</ca>' >> /etc/openvpn/ssl.ovpn
+echo '<cert>' >> /etc/openvpn/ssl.ovpn
+cat /etc/openvpn/server.crt >> /etc/openvpn/ssl.ovpn
+echo '</cert>' >> /etc/openvpn/ssl.ovpn
+echo '<key>' >> /etc/openvpn/ssl.ovpn
+cat /etc/openvpn/server.key >> /etc/openvpn/ssl.ovpn
+echo '</key>' >> /etc/openvpn/ssl.ovpn
+echo '<tls-auth>' >> /etc/openvpn/ssl.ovpn
+cat /etc/openvpn/ta.key >> /etc/openvpn/ssl.ovpn
+echo '</tls-auth>' >> /etc/openvpn/ssl.ovpn
+cp /etc/openvpn/ssl.ovpn /home/vps/public_html/ssl.ovpn
 
-cat <<EOF16> /home/vps/public_html/udp.ovpn
+cat > /etc/openvpn/udp.ovpn <<-END
 # Credits to Gakod Memgganas
 client
 dev tun
@@ -701,20 +705,22 @@ key-direction 1
 sam
 sam
 </auth-user-pass>
-<ca>
-$(cat /etc/openvpn/ca.crt)
-</ca>
-<cert>
-$(cat /etc/openvpn/client.crt)
-</cert>
-<key>
-$(cat /etc/openvpn/client.key)
-</key>
-<tls-auth>
-$(cat /etc/openvpn/tls-auth.key)
-</tls-auth>
-EOF16
+END
+sed -i $MYIP2 /etc/openvpn/udp.ovpn
 
+echo '<ca>' >> /etc/openvpn/udp.ovpn
+cat /etc/openvpn/ca.crt >> /etc/openvpn/udp.ovpn
+echo '</ca>' >> /etc/openvpn/udp.ovpn
+echo '<cert>' >> /etc/openvpn/udp.ovpn
+cat /etc/openvpn/server.crt >> /etc/openvpn/udp.ovpn
+echo '</cert>' >> /etc/openvpn/udp.ovpn
+echo '<key>' >> /etc/openvpn/udp.ovpn
+cat /etc/openvpn/server.key >> /etc/openvpn/udp.ovpn
+echo '</key>' >> /etc/openvpn/udp.ovpn
+echo '<tls-auth>' >> /etc/openvpn/udp.ovpn
+cat /etc/openvpn/ta.key >> /etc/openvpn/udp.ovpn
+echo '</tls-auth>' >> /etc/openvpn/udp.ovpn
+cp /etc/openvpn/udp.ovpn /home/vps/public_html/udp.ovpn
 # Setting UFW
 apt-get install ufw
 ufw allow ssh
