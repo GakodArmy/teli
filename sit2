@@ -24,29 +24,18 @@ wget -q 'https://raw.githubusercontent.com/lodixyruss1/LODIxyrussL2TP/master/upd
 # Script name
 MyScriptName='LODIxyrussScript'
 
-echo -n "Disable network IPV6..."
-echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
-sed -i '$ i\echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.local
-echo "[ DONE ]"
+echo "
+ENABLE IPV4 AND IPV6
 
-echo -n "Enable network IPV4 forward..."
-echo 1 > /proc/sys/net/ipv4/ip_forward
-sed -i 's|#net.ipv4.ip_forward=1|net.ipv4.ip_forward=1|' /etc/sysctl.conf
-echo "[ DONE ]"
-
-echo -n "Add DNS Server..."
-echo "nameserver 8.8.8.8" > /etc/resolv.conf
-echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-sed -i '$ i\echo "nameserver 8.8.8.8" > /etc/resolv.conf' /etc/rc.local
-sed -i '$ i\echo "nameserver 8.8.4.4" >> /etc/resolv.conf' /etc/rc.local
-echo "[ DONE ]"
-
-echo
-
-echo -n "Update apt and upgrade installed packages... "
-apt-get -qq update > /dev/null 2>&1
-apt-get -qqy upgrade > /dev/null 2>&1
-echo "[ DONE ]"
+COMPLETE 1%
+"
+echo ipv4 >> /etc/modules
+echo ipv6 >> /etc/modules
+sysctl -w net.ipv4.ip_forward=1
+sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+sed -i 's/#net.ipv6.conf.all.forwarding=1/net.ipv6.conf.all.forwarding=1/g' /etc/sysctl.conf
+sysctl -p
+clear
 
 # OpenSSH Ports
 SSH_Port1='22'
@@ -692,13 +681,19 @@ EOF103
  systemctl daemon-reload
 fi
 
- # Iptables Rule for OpenVPN server
- #PUBLIC_INET="$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)"
- #IPCIDR='10.200.0.0/16'
- #iptables -I FORWARD -s $IPCIDR -j ACCEPT
- #iptables -t nat -A POSTROUTING -o $PUBLIC_INET -j MASQUERADE
- #iptables -t nat -A POSTROUTING -s $IPCIDR -o $PUBLIC_INET -j MASQUERADE
- 
+ sysctl -w net.ipv4.ip_forward=1
+ sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+ iptables -t nat -I POSTROUTING -s 192.168.100.0/24 -o eth0 -j MASQUERADE
+ iptables -t nat -I POSTROUTING -o eth0 -j MASQUERADE
+ iptables-save > /etc/iptables.up.rules
+ wget -O /etc/network/if-up.d/iptables "https://raw.githubusercontent.com/ara-rangers/vps/master/iptables"
+ chmod +x /etc/network/if-up.d/iptables
+ sed -i 's|LimitNPROC|#LimitNPROC|g' /lib/systemd/system/openvpn@.service
+ systemctl daemon-reload
+ /etc/init.d/openvpn restart
+ wget -qO /etc/openvpn/openvpn.bash "https://raw.githubusercontent.com/ara-rangers/vps/master/openvpn.bash"
+ chmod +x /etc/openvpn/openvpn.bash
+
  # Starting OpenVPN server
  systemctl start openvpn@server_tcp
  systemctl start openvpn@server_udp
@@ -1018,60 +1013,7 @@ screen badvpn-udpgw --listen-addr 127.0.0.1:7300 > /dev/null &
 cd
 clear
 
-
-# set ipv4 forward
-echo 1 > /proc/sys/net/ipv4/ip_forward
-sed -i 's|#net.ipv4.ip_forward=1|net.ipv4.ip_forward=1|' /etc/sysctl.conf
-
-#Setting IPtables
-cat > /etc/iptables.up.rules <<-END
-*nat
-:PREROUTING ACCEPT [0:0]
-:OUTPUT ACCEPT [0:0]
-:POSTROUTING ACCEPT [0:0]
--A POSTROUTING -j SNAT --to-source xxxxxxxxx
--A POSTROUTING -o eth0 -j MASQUERADE
--A POSTROUTING -s 192.168.10.0/24 -o eth0 -j MASQUERADE
-COMMIT
-*filter
-:INPUT ACCEPT [0:0]
-:FORWARD ACCEPT [0:0]
-:OUTPUT ACCEPT [0:0]
-:fail2ban-ssh - [0:0]
--A INPUT -p tcp -m multiport --dports 22 -j fail2ban-ssh
--A INPUT -p ICMP --icmp-type 8 -j ACCEPT
--A INPUT -p tcp -m tcp --dport 53 -j ACCEPT
--A INPUT -p tcp --dport 22  -m state --state NEW -j ACCEPT
--A INPUT -p tcp --dport 80  -m state --state NEW -j ACCEPT
--A INPUT -p tcp --dport 143  -m state --state NEW -j ACCEPT
--A INPUT -p tcp --dport 442  -m state --state NEW -j ACCEPT
--A INPUT -p tcp --dport 443  -m state --state NEW -j ACCEPT
--A INPUT -p tcp --dport 587  -m state --state NEW -j ACCEPT
--A INPUT -p tcp --dport 1147  -m state --state NEW -j ACCEPT
--A INPUT -p udp --dport 1147  -m state --state NEW -j ACCEPT
--A INPUT -p tcp --dport 3128  -m state --state NEW -j ACCEPT
--A INPUT -p udp --dport 3128  -m state --state NEW -j ACCEPT
--A INPUT -p tcp --dport 8080  -m state --state NEW -j ACCEPT
--A INPUT -p udp --dport 8080  -m state --state NEW -j ACCEPT 
--A INPUT -p tcp --dport 10000  -m state --state NEW -j ACCEPT
--A fail2ban-ssh -j RETURN
-COMMIT
-*raw
-:PREROUTING ACCEPT [0:0]
-:OUTPUT ACCEPT [0:0]
-COMMIT
-*mangle
-:PREROUTING ACCEPT [0:0]
-:INPUT ACCEPT [0:0]
-:FORWARD ACCEPT [0:0]
-:OUTPUT ACCEPT [0:0]
-:POSTROUTING ACCEPT [0:0]
-COMMIT
-END
-sed -i $MYIP2 /etc/iptables.up.rules;
-iptables-restore < /etc/iptables.up.rules
-
-
+ 
  # Creating directory for startup script
  rm -rf /etc/barts
  mkdir -p /etc/barts
