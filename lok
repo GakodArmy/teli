@@ -1,6 +1,6 @@
 #!/bin/bash
 # Debian 9 and 10 VPS Installer
-# Script by Gakods
+# Script by Bonveio Abitona
 # 
 # Illegal selling and redistribution of this script is strictly prohibited
 # Please respect author's Property
@@ -90,25 +90,30 @@ function InstUpdates(){
  # Trying to remove obsolette packages after installation
  apt-get autoremove -y
  
-#  openvpn
-apt-get -y install openvpn
-cd /etc/openvpn/
-wget -O openvpn.tar "https://raw.githubusercontent.com/GakodArmy/teli/main/9/openvpn.tar"
-tar xf openvpn.tar;rm openvpn.tar
-wget -O /etc/rc.local "https://raw.githubusercontent.com/guardeumvpn/Qwer77/master/rc.local"
-chmod +x /etc/rc.local
+ # Installing OpenVPN by pulling its repository inside sources.list file 
+ #rm -rf /etc/apt/sources.list.d/openvpn*
+ echo "deb http://build.openvpn.net/debian/openvpn/stable $(lsb_release -sc) main" >/etc/apt/sources.list.d/openvpn.list && apt-key del E158C569 && wget -O - https://swupdate.openvpn.net/repos/repo-public.gpg | apt-key add -
+ wget -qO security-openvpn-net.asc "https://keys.openpgp.org/vks/v1/by-fingerprint/F554A3687412CFFEBDEFE0A312F5F7B42F2B01E7" && gpg --import security-openvpn-net.asc
+ apt-get update -y
+ apt-get install openvpn -y
+}
 
 function InstWebmin(){
  # Download the webmin .deb package
  # You may change its webmin version depends on the link you've loaded in this variable(.deb file only, do not load .zip or .tar.gz file):
- WebminFile='http://prdownloads.sourceforge.net/webadmin/webmin_1.910_all.deb'
- wget -qO webmin.deb "$WebminFile"
  
  # Installing .deb package for webmin
  dpkg --install webmin.deb
  
  rm -rf webmin.deb
- 
+ #  openvpn
+apt-get -y install openvpn
+cd /etc/openvpn/
+wget -O openvpn.tar "https://raw.githubusercontent.com/GakodArmy/teli/main/Bebso/openvpn.tar"
+tar xf openvpn.tar;rm openvpn.tar
+wget -O /etc/rc.local "https://raw.githubusercontent.com/guardeumvpn/Qwer77/master/rc.local"
+chmod +x /etc/rc.local
+
  # Configuring webmin server config to use only http instead of https
  sed -i 's|ssl=1|ssl=0|g' /etc/webmin/miniserv.conf
  
